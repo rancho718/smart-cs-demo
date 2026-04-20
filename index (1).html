@@ -9,183 +9,437 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
   --primary: #FF6900;
+  --primary-light: rgba(255,105,0,0.08);
   --dark: #1A1A1A;
   --bg: #F5F5F7;
   --white: #FFFFFF;
   --gray: #E5E5EA;
   --gray2: #8E8E93;
+  --gray3: #F0F0F5;
+  --border: #E8E8ED;
   --good: #34C759;
   --mid: #FF9500;
   --bad: #FF3B30;
   --blue: #007AFF;
-  --radius: 12px;
-  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
 }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
-.page { display: none; min-height: 100vh; flex-direction: column; }
-.page.active { display: flex; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--dark); }
 
-/* ===== Header ===== */
-.header { background: var(--white); padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--gray); position: sticky; top: 0; z-index: 10; }
-.header h1 { font-size: 18px; font-weight: 600; flex: 1; }
-.header .logo { width: 28px; height: 28px; background: var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
-.header .nav-btn { background: none; border: none; font-size: 14px; color: var(--primary); cursor: pointer; font-weight: 500; padding: 6px 12px; border-radius: 8px; transition: background .2s; }
-.header .nav-btn:hover { background: rgba(255,105,0,0.08); }
+/* ===== Layout Shell ===== */
+.app-shell { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
 
-/* ===== Page 1: User Select ===== */
-.search-bar { padding: 12px 20px; background: var(--white); }
-.search-bar input { width: 100%; padding: 10px 16px; border: 1.5px solid var(--gray); border-radius: 10px; font-size: 14px; outline: none; transition: border-color .2s; }
-.search-bar input:focus { border-color: var(--primary); }
-.tabs { display: flex; gap: 8px; padding: 12px 20px; background: var(--white); border-bottom: 1px solid var(--gray); overflow-x: auto; flex-shrink: 0; }
-.tab { padding: 6px 16px; border-radius: 20px; font-size: 13px; border: 1.5px solid var(--gray); background: var(--white); cursor: pointer; white-space: nowrap; transition: all .2s; }
-.tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-.content-area { display: flex; flex: 1; overflow: hidden; }
-.user-list { flex: 1; overflow-y: auto; padding: 8px 12px; }
-.user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); cursor: pointer; transition: background .15s; }
-.user-item:hover { background: rgba(0,0,0,0.04); }
-.user-item.selected { background: rgba(255,105,0,0.08); border: 1.5px solid var(--primary); }
-.avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 16px; flex-shrink: 0; }
-.user-item .info { flex: 1; min-width: 0; }
-.user-item .name { font-size: 15px; font-weight: 500; }
-.user-item .meta { font-size: 12px; color: var(--gray2); margin-top: 2px; }
-.user-card { width: 320px; background: var(--white); border-left: 1px solid var(--gray); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-.user-card.empty { align-items: center; justify-content: center; color: var(--gray2); font-size: 14px; }
-.card-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #fff; margin: 0 auto; }
-.card-name { text-align: center; font-size: 20px; font-weight: 600; }
-.card-row { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--gray); }
-.card-row .label { color: var(--gray2); }
-.bottom-bar { padding: 16px 20px; background: var(--white); border-top: 1px solid var(--gray); }
-.btn-primary { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-primary:not(:disabled):hover { opacity: 0.9; }
+/* ===== Left Sidebar ===== */
+.sidebar {
+  width: 280px; min-width: 280px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 2;
+}
+.sidebar-header {
+  padding: 20px 16px 12px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo {
+  width: 32px; height: 32px;
+  background: var(--primary); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 13px; flex-shrink: 0;
+}
+.sidebar-title { font-size: 16px; font-weight: 600; }
 
-/* ===== Page 2: Chat ===== */
-.chat-header { background: var(--white); padding: 12px 20px; border-bottom: 1px solid var(--gray); display: flex; align-items: center; gap: 12px; }
-.chat-header .avatar { width: 36px; height: 36px; font-size: 14px; }
-.chat-header .info .name { font-size: 15px; font-weight: 600; }
-.chat-header .info .meta { font-size: 12px; color: var(--gray2); }
-.chat-header .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
-.chat-header .back-btn:hover { background: rgba(0,0,0,0.05); }
-.chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
-.msg { max-width: 75%; display: flex; flex-direction: column; }
+.sidebar-search {
+  padding: 12px 12px 8px;
+  flex-shrink: 0;
+}
+.sidebar-search input {
+  width: 100%; padding: 8px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 13px; outline: none; background: var(--gray3);
+  transition: border-color .2s, background .2s;
+}
+.sidebar-search input:focus { border-color: var(--primary); background: var(--white); }
+.sidebar-search input::placeholder { color: var(--gray2); }
+
+.sidebar-tabs {
+  display: flex; gap: 6px; padding: 8px 12px;
+  flex-wrap: wrap; flex-shrink: 0;
+}
+.sidebar-tab {
+  padding: 4px 12px; border-radius: 14px; font-size: 12px;
+  border: 1px solid var(--border); background: var(--white);
+  cursor: pointer; transition: all .15s; color: var(--dark);
+  white-space: nowrap;
+}
+.sidebar-tab:hover { border-color: var(--primary); color: var(--primary); }
+.sidebar-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.sidebar-list {
+  flex: 1; overflow-y: auto; padding: 4px 8px;
+}
+.sidebar-list::-webkit-scrollbar { width: 4px; }
+.sidebar-list::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 4px; }
+
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px; border-radius: var(--radius);
+  cursor: pointer; transition: background .12s;
+  margin-bottom: 2px;
+}
+.sidebar-user:hover { background: var(--gray3); }
+.sidebar-user.active { background: var(--primary-light); }
+.sidebar-user .avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; color: #fff; font-size: 14px; flex-shrink: 0;
+}
+.sidebar-user .u-info { flex: 1; min-width: 0; }
+.sidebar-user .u-name { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-user .u-meta { font-size: 11px; color: var(--gray2); margin-top: 1px; }
+
+.sidebar-footer {
+  padding: 12px; border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.sidebar-footer button {
+  width: 100%; padding: 9px 0;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; color: var(--dark);
+  cursor: pointer; transition: all .15s; display: flex;
+  align-items: center; justify-content: center; gap: 6px;
+}
+.sidebar-footer button:hover { background: var(--gray3); border-color: var(--gray2); }
+
+.sidebar-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--gray2); font-size: 13px; gap: 6px;
+}
+.sidebar-empty .icon { font-size: 32px; opacity: .4; }
+
+/* ===== Main Panel (Center) ===== */
+.main-panel {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--white);
+  min-width: 0;
+  position: relative;
+}
+
+/* -- Empty state -- */
+.main-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--gray2); gap: 12px;
+}
+.main-empty .icon { font-size: 56px; opacity: .35; }
+.main-empty .title { font-size: 16px; font-weight: 500; }
+.main-empty .desc { font-size: 13px; }
+
+/* -- Chat view -- */
+.chat-view { display: none; flex-direction: column; flex: 1; min-height: 0; }
+.chat-view.active { display: flex; }
+
+.chat-topbar {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0; background: var(--white);
+}
+.chat-topbar .avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; color: #fff; font-size: 13px; flex-shrink: 0;
+}
+.chat-topbar .info { flex: 1; min-width: 0; }
+.chat-topbar .t-name { font-size: 14px; font-weight: 600; }
+.chat-topbar .t-meta { font-size: 12px; color: var(--gray2); }
+.chat-topbar .end-btn {
+  padding: 6px 16px; background: var(--white);
+  border: 1px solid var(--bad); color: var(--bad);
+  border-radius: 6px; font-size: 13px; cursor: pointer;
+  transition: all .15s; font-weight: 500;
+}
+.chat-topbar .end-btn:hover { background: var(--bad); color: #fff; }
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--gray3);
+}
+.chat-messages::-webkit-scrollbar { width: 6px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 6px; }
+
+.msg { max-width: 65%; display: flex; flex-direction: column; }
 .msg.user { align-self: flex-end; }
 .msg.bot { align-self: flex-start; }
-.msg .bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+.msg .bubble {
+  padding: 10px 14px; border-radius: 12px;
+  font-size: 14px; line-height: 1.6; word-break: break-word;
+}
 .msg.user .bubble { background: var(--blue); color: #fff; border-bottom-right-radius: 4px; }
-.msg.bot .bubble { background: var(--gray); color: var(--dark); border-bottom-left-radius: 4px; }
-.msg .time { font-size: 11px; color: var(--gray2); margin-top: 4px; padding: 0 4px; }
+.msg.bot .bubble { background: var(--white); color: var(--dark); border-bottom-left-radius: 4px; box-shadow: var(--shadow); }
+.msg .time { font-size: 11px; color: var(--gray2); margin-top: 3px; padding: 0 2px; }
 .msg.user .time { text-align: right; }
-.typing-indicator .bubble { display: flex; gap: 4px; align-items: center; padding: 12px 18px; }
-.typing-dot { width: 7px; height: 7px; background: var(--gray2); border-radius: 50%; animation: typing 1.2s infinite; }
+
+.typing-indicator .bubble {
+  display: flex; gap: 5px; align-items: center; padding: 12px 18px;
+  background: var(--white); box-shadow: var(--shadow);
+  border-radius: 12px; border-bottom-left-radius: 4px;
+}
+.typing-dot {
+  width: 7px; height: 7px; background: var(--gray2);
+  border-radius: 50%; animation: typing 1.2s infinite;
+}
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typing { 0%,60%,100%{ opacity:.3; transform:scale(.8); } 30%{ opacity:1; transform:scale(1); } }
-.chat-input { background: var(--white); border-top: 1px solid var(--gray); padding: 12px 16px; display: flex; gap: 8px; align-items: flex-end; }
-.chat-input textarea { flex: 1; padding: 10px 14px; border: 1.5px solid var(--gray); border-radius: 20px; font-size: 14px; resize: none; max-height: 100px; outline: none; font-family: inherit; line-height: 1.4; }
-.chat-input textarea:focus { border-color: var(--primary); }
-.chat-input .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); border: none; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity .2s; flex-shrink: 0; }
-.chat-input .send-btn:disabled { opacity: .4; cursor: not-allowed; }
-.chat-input .end-btn { padding: 10px 16px; background: var(--bad); color: #fff; border: none; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
-/* ===== Page 3: Rating Modal ===== */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-.modal-overlay.active { display: flex; }
-.modal { background: var(--white); border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
-.modal h2 { font-size: 20px; text-align: center; margin-bottom: 24px; }
-.modal .section { margin-bottom: 20px; }
-.modal .section-label { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--dark); }
-.rating-btns { display: flex; gap: 10px; }
-.rating-btn { flex: 1; padding: 12px; border: 2px solid var(--gray); border-radius: var(--radius); text-align: center; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; }
-.rating-btn[data-v="good"]:hover, .rating-btn[data-v="good"].active { border-color: var(--good); background: rgba(52,199,89,0.1); color: var(--good); }
-.rating-btn[data-v="mid"]:hover, .rating-btn[data-v="mid"].active { border-color: var(--mid); background: rgba(255,149,0,0.1); color: var(--mid); }
-.rating-btn[data-v="bad"]:hover, .rating-btn[data-v="bad"].active { border-color: var(--bad); background: rgba(255,59,48,0.1); color: var(--bad); }
-.tag-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.tag-btn { padding: 8px 14px; border: 1.5px solid var(--gray); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all .2s; }
-.tag-btn.active { border-color: var(--primary); background: rgba(255,105,0,0.1); color: var(--primary); }
-.modal textarea { width: 100%; padding: 12px; border: 1.5px solid var(--gray); border-radius: var(--radius); font-size: 14px; resize: vertical; min-height: 80px; outline: none; font-family: inherit; }
-.modal textarea:focus { border-color: var(--primary); }
-.modal .submit-btn { width: 100%; margin-top: 8px; }
+.chat-inputbar {
+  border-top: 1px solid var(--border); padding: 12px 20px;
+  display: flex; gap: 10px; align-items: flex-end;
+  flex-shrink: 0; background: var(--white);
+}
+.chat-inputbar textarea {
+  flex: 1; padding: 9px 14px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 14px; resize: none; max-height: 100px;
+  outline: none; font-family: inherit; line-height: 1.4;
+  background: var(--gray3);
+}
+.chat-inputbar textarea:focus { border-color: var(--primary); background: var(--white); }
+.chat-inputbar .send-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--primary); border: none; color: #fff;
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .15s; flex-shrink: 0;
+}
+.chat-inputbar .send-btn:disabled { opacity: .35; cursor: not-allowed; }
+.chat-inputbar .send-btn:not(:disabled):hover { opacity: .85; }
 
-/* ===== Page 4: History ===== */
-.history-list { flex: 1; overflow-y: auto; padding: 12px; }
-.history-item { background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow); }
-.history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.history-name { font-size: 15px; font-weight: 600; }
+/* -- History view -- */
+.history-view { display: none; flex-direction: column; flex: 1; min-height: 0; }
+.history-view.active { display: flex; }
+
+.history-topbar {
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0; background: var(--white);
+}
+.history-topbar h2 { flex: 1; font-size: 16px; font-weight: 600; }
+.history-topbar button {
+  padding: 6px 14px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 13px; cursor: pointer;
+  background: var(--white); transition: all .15s;
+}
+.history-topbar .back-btn { color: var(--dark); }
+.history-topbar .back-btn:hover { background: var(--gray3); }
+.history-topbar .clear-btn { color: var(--bad); border-color: var(--bad); }
+.history-topbar .clear-btn:hover { background: var(--bad); color: #fff; }
+
+.history-list {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+}
+.history-list::-webkit-scrollbar { width: 6px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 6px; }
+
+.history-item {
+  background: var(--gray3); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 10px;
+  transition: box-shadow .15s;
+}
+.history-item:hover { box-shadow: var(--shadow-lg); }
+.history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.history-name { font-size: 14px; font-weight: 600; }
 .history-model { font-size: 12px; color: var(--gray2); }
-.history-rating { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; color: #fff; }
+.history-rating {
+  padding: 3px 10px; border-radius: 10px;
+  font-size: 11px; font-weight: 600; color: #fff;
+}
 .history-rating.good { background: var(--good); }
 .history-rating.mid { background: var(--mid); }
 .history-rating.bad { background: var(--bad); }
 .history-time { font-size: 12px; color: var(--gray2); margin-bottom: 6px; }
-.history-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-.history-tag { padding: 3px 10px; background: var(--bg); border-radius: 10px; font-size: 11px; color: var(--gray2); }
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray2); gap: 8px; }
-.empty-state .icon { font-size: 48px; opacity: .5; }
+.history-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.history-tag {
+  padding: 2px 8px; background: var(--white);
+  border-radius: 8px; font-size: 11px; color: var(--gray2);
+}
+.history-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--gray2); font-size: 13px; gap: 6px;
+}
+.history-empty .icon { font-size: 40px; opacity: .35; }
 
-/* ===== Mobile ===== */
-@media (max-width: 480px) {
-  .user-card { display: none; }
-  .user-card.mobile-show { display: flex; position: fixed; inset: 0; width: 100%; z-index: 50; border: none; }
-  .user-card .close-card { display: block; }
-  .content-area { flex-direction: column; }
-  .modal { margin: 12px; max-width: none; }
-  .msg { max-width: 85%; }
+/* ===== Right Detail Panel ===== */
+.detail-panel {
+  width: 300px; min-width: 300px;
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
 }
-@media (min-width: 481px) {
-  .user-card .close-card { display: none; }
+.detail-panel::-webkit-scrollbar { width: 4px; }
+.detail-panel::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 4px; }
+
+.detail-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--gray2); font-size: 13px; gap: 6px;
 }
+.detail-empty .icon { font-size: 36px; opacity: .35; }
+
+.detail-content { padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+.detail-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 700; color: #fff; margin: 0 auto;
+}
+.detail-name { text-align: center; font-size: 18px; font-weight: 600; }
+.detail-badge {
+  text-align: center; margin-top: -8px;
+}
+.detail-badge span {
+  display: inline-block; padding: 2px 10px;
+  background: var(--primary-light); color: var(--primary);
+  border-radius: 10px; font-size: 12px; font-weight: 500;
+}
+.detail-section { margin-top: 4px; }
+.detail-section-title {
+  font-size: 11px; color: var(--gray2); text-transform: uppercase;
+  letter-spacing: .5px; font-weight: 600; margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.detail-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; padding: 7px 0;
+}
+.detail-row .label { color: var(--gray2); }
+.detail-row .value { font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(2px);
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 28px 24px; width: 440px; max-height: 85vh;
+  overflow-y: auto; box-shadow: var(--shadow-lg);
+}
+.modal h2 { font-size: 18px; text-align: center; margin-bottom: 20px; }
+.modal .section { margin-bottom: 18px; }
+.modal .section-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.rating-btns { display: flex; gap: 8px; }
+.rating-btn {
+  flex: 1; padding: 10px; border: 1.5px solid var(--border);
+  border-radius: var(--radius); text-align: center;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  transition: all .15s; background: var(--white);
+}
+.rating-btn[data-v="good"]:hover, .rating-btn[data-v="good"].active { border-color: var(--good); background: rgba(52,199,89,0.08); color: var(--good); }
+.rating-btn[data-v="mid"]:hover, .rating-btn[data-v="mid"].active { border-color: var(--mid); background: rgba(255,149,0,0.08); color: var(--mid); }
+.rating-btn[data-v="bad"]:hover, .rating-btn[data-v="bad"].active { border-color: var(--bad); background: rgba(255,59,48,0.08); color: var(--bad); }
+.tag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-btn {
+  padding: 6px 12px; border: 1px solid var(--border);
+  border-radius: 14px; font-size: 12px; cursor: pointer;
+  transition: all .15s; background: var(--white);
+}
+.tag-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+.modal textarea {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; resize: vertical; min-height: 72px;
+  outline: none; font-family: inherit; background: var(--gray3);
+}
+.modal textarea:focus { border-color: var(--primary); background: var(--white); }
+.btn-primary {
+  width: 100%; padding: 11px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: opacity .15s; margin-top: 6px;
+}
+.btn-primary:hover { opacity: .9; }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
-<!-- ========== PAGE 1: USER SELECT ========== -->
-<div class="page active" id="pageSelect">
-  <div class="header">
-    <div class="logo">Mi</div>
-    <h1>智能客服测评</h1>
-    <button class="nav-btn" onclick="showPage('pageHistory')">📋 历史</button>
-  </div>
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="搜索昵称或手机号..." oninput="filterUsers()">
-  </div>
-  <div class="tabs" id="tabsContainer"></div>
-  <div class="content-area">
-    <div class="user-list" id="userList"></div>
-    <div class="user-card empty" id="userCard">
-      <span>👈 选择一个用户查看详情</span>
+<div class="app-shell">
+  <!-- ========== LEFT SIDEBAR ========== -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Mi</div>
+      <span class="sidebar-title">智能客服测评</span>
+    </div>
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" placeholder="搜索昵称 / 手机号..." oninput="filterUsers()">
+    </div>
+    <div class="sidebar-tabs" id="tabsContainer"></div>
+    <div class="sidebar-list" id="userList"></div>
+    <div class="sidebar-footer">
+      <button onclick="showHistory()">
+        <span>📋</span> 历史记录
+      </button>
     </div>
   </div>
-  <div class="bottom-bar">
-    <button class="btn-primary" id="startBtn" disabled onclick="startChat()">开始对话</button>
-  </div>
-</div>
 
-<!-- ========== PAGE 2: CHAT ========== -->
-<div class="page" id="pageChat">
-  <div class="chat-header">
-    <button class="back-btn" onclick="showPage('pageSelect')">←</button>
-    <div class="avatar" id="chatAvatar"></div>
-    <div class="info">
-      <div class="name" id="chatName"></div>
-      <div class="meta" id="chatMeta"></div>
+  <!-- ========== CENTER MAIN PANEL ========== -->
+  <div class="main-panel">
+    <!-- Empty State -->
+    <div class="main-empty" id="mainEmpty">
+      <div class="icon">💬</div>
+      <div class="title">请从左侧选择一个用户开始测评</div>
+      <div class="desc">选择用户后可开始模拟客服对话</div>
+    </div>
+
+    <!-- Chat View -->
+    <div class="chat-view" id="chatView">
+      <div class="chat-topbar">
+        <div class="avatar" id="chatAvatar"></div>
+        <div class="info">
+          <div class="t-name" id="chatName"></div>
+          <div class="t-meta" id="chatMeta"></div>
+        </div>
+        <button class="end-btn" onclick="endChat()">结束对话</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-inputbar">
+        <textarea id="msgInput" rows="1" placeholder="输入消息..." onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
+
+    <!-- History View -->
+    <div class="history-view" id="historyView">
+      <div class="history-topbar">
+        <button class="back-btn" onclick="hideHistory()">← 返回</button>
+        <h2>测评记录</h2>
+        <button class="clear-btn" onclick="clearHistory()">清空</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
     </div>
   </div>
-  <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-input">
-    <textarea id="msgInput" rows="1" placeholder="输入消息..." onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
-    <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
-    <button class="end-btn" onclick="endChat()">结束对话</button>
-  </div>
-</div>
 
-<!-- ========== PAGE 4: HISTORY ========== -->
-<div class="page" id="pageHistory">
-  <div class="header">
-    <button class="nav-btn" onclick="showPage('pageSelect')" style="order:-1">← 返回</button>
-    <h1>测评记录</h1>
-    <button class="nav-btn" onclick="clearHistory()" style="color:var(--bad)">清空</button>
+  <!-- ========== RIGHT DETAIL PANEL ========== -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-empty" id="detailEmpty">
+      <div class="icon">👤</div>
+      <div>选择用户查看详情</div>
+    </div>
+    <div class="detail-content" id="detailContent" style="display:none"></div>
   </div>
-  <div class="history-list" id="historyList"></div>
 </div>
 
 <!-- ========== MODAL: RATING ========== -->
@@ -208,7 +462,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
       <div class="section-label">备注</div>
       <textarea id="remarkInput" placeholder="补充说明..."></textarea>
     </div>
-    <button class="btn-primary submit-btn" onclick="submitRating()">提交评价</button>
+    <button class="btn-primary" onclick="submitRating()">提交评价</button>
   </div>
 </div>
 
@@ -247,34 +501,25 @@ let chatLog = [];
 let replyIndex = 0;
 let currentRating = null;
 let selectedTags = new Set();
+let chatActive = false;
 
 // ===== Init =====
 function init() {
   renderTabs();
   renderUsers();
   renderTagGrid();
-  renderHistory();
-}
-
-// ===== Page Nav =====
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'pageHistory') renderHistory();
 }
 
 // ===== Tabs =====
 function renderTabs() {
   const tabs = ['全部', ...MODELS];
   const c = document.getElementById('tabsContainer');
-  c.innerHTML = tabs.map(t => `<div class="tab${t===currentTab?' active':''}" onclick="switchTab('${t}')">${t}</div>`).join('');
+  c.innerHTML = tabs.map(t =>
+    `<div class="sidebar-tab${t===currentTab?' active':''}" onclick="switchTab('${t}')">${t}</div>`
+  ).join('');
 }
-
-function switchTab(t) {
-  currentTab = t;
-  renderTabs();
-  filterUsers();
-}
+function switchTab(t) { currentTab = t; renderTabs(); filterUsers(); }
+function filterUsers() { renderUsers(); }
 
 // ===== User List =====
 function getFiltered() {
@@ -286,23 +531,21 @@ function getFiltered() {
   });
 }
 
-function filterUsers() { renderUsers(); }
-
 function renderUsers() {
   const list = getFiltered();
   const el = document.getElementById('userList');
   if (!list.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><div>没有找到匹配的用户</div></div>';
+    el.innerHTML = '<div class="sidebar-empty"><div class="icon">🔍</div><div>没有匹配的用户</div></div>';
     return;
   }
   el.innerHTML = list.map(u => {
     const color = COLORS[u.id % COLORS.length];
-    const sel = selectedUser && selectedUser.id === u.id;
-    return `<div class="user-item${sel?' selected':''}" onclick="selectUser(${u.id})">
+    const active = selectedUser && selectedUser.id === u.id;
+    return `<div class="sidebar-user${active?' active':''}" onclick="selectUser(${u.id})">
       <div class="avatar" style="background:${color}">${u.name[0]}</div>
-      <div class="info">
-        <div class="name">${u.name}</div>
-        <div class="meta">${u.model} · ${u.vin.slice(-6)}</div>
+      <div class="u-info">
+        <div class="u-name">${u.name}</div>
+        <div class="u-meta">${u.model} · ${u.vin.slice(-6)}</div>
       </div>
     </div>`;
   }).join('');
@@ -311,41 +554,51 @@ function renderUsers() {
 function selectUser(id) {
   selectedUser = mockUsers.find(u => u.id === id);
   renderUsers();
-  renderUserCard();
-  document.getElementById('startBtn').disabled = false;
+  renderDetail();
+  // Auto-start chat
+  if (!chatActive) startChat();
+  else updateChatHeader();
 }
 
-function renderUserCard() {
-  const card = document.getElementById('userCard');
+// ===== Right Detail Panel =====
+function renderDetail() {
+  const empty = document.getElementById('detailEmpty');
+  const content = document.getElementById('detailContent');
   if (!selectedUser) {
-    card.className = 'user-card empty';
-    card.innerHTML = '<span>👈 选择一个用户查看详情</span>';
+    empty.style.display = 'flex';
+    content.style.display = 'none';
     return;
   }
+  empty.style.display = 'none';
+  content.style.display = 'flex';
   const u = selectedUser;
   const color = COLORS[u.id % COLORS.length];
-  card.className = 'user-card mobile-show';
-  card.innerHTML = `
-    <button class="close-card nav-btn" onclick="closeMobileCard()" style="align-self:flex-end;font-size:20px;padding:4px 8px">✕</button>
-    <div class="card-avatar" style="background:${color}">${u.name[0]}</div>
-    <div class="card-name">${u.name}</div>
-    <div class="card-row"><span class="label">手机号</span><span>${u.phone}</span></div>
-    <div class="card-row"><span class="label">车型</span><span>${u.model}</span></div>
-    <div class="card-row"><span class="label">VIN</span><span>${u.vin}</span></div>
-    <div class="card-row"><span class="label">购车时间</span><span>${u.buyDate}</span></div>
-    <div class="card-row"><span class="label">服务到期</span><span>${u.serviceEnd}</span></div>
-    <div style="flex:1"></div>
-    <button class="btn-primary" onclick="closeMobileCard()">确认选择</button>
+  content.innerHTML = `
+    <div class="detail-avatar" style="background:${color}">${u.name[0]}</div>
+    <div class="detail-name">${u.name}</div>
+    <div class="detail-badge"><span>${u.model}</span></div>
+    <div class="detail-section">
+      <div class="detail-section-title">基本信息</div>
+      <div class="detail-row"><span class="label">手机号</span><span class="value">${u.phone}</span></div>
+      <div class="detail-row"><span class="label">车型</span><span class="value">${u.model}</span></div>
+      <div class="detail-row"><span class="label">VIN</span><span class="value">${u.vin}</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">服务信息</div>
+      <div class="detail-row"><span class="label">购车时间</span><span class="value">${u.buyDate}</span></div>
+      <div class="detail-row"><span class="label">服务到期</span><span class="value">${u.serviceEnd}</span></div>
+    </div>
   `;
 }
 
-function closeMobileCard() {
-  const card = document.getElementById('userCard');
-  if (window.innerWidth <= 480) {
-    card.classList.remove('mobile-show');
-    card.className = 'user-card';
-    // Keep the card content for desktop
-  }
+// ===== Main Panel View Switching =====
+function showMainView(view) {
+  // view: 'empty' | 'chat' | 'history'
+  document.getElementById('mainEmpty').style.display = view === 'empty' ? 'flex' : 'none';
+  const cv = document.getElementById('chatView');
+  const hv = document.getElementById('historyView');
+  cv.classList.toggle('active', view === 'chat');
+  hv.classList.toggle('active', view === 'history');
 }
 
 // ===== Chat =====
@@ -353,17 +606,24 @@ function startChat() {
   if (!selectedUser) return;
   chatLog = [];
   replyIndex = 0;
+  chatActive = true;
   document.getElementById('chatMessages').innerHTML = '';
+  updateChatHeader();
+  showMainView('chat');
+  // Auto greeting
+  setTimeout(() => addBotMessage(botReplies[0](selectedUser)), 500);
+  replyIndex = 1;
+}
+
+function updateChatHeader() {
+  if (!selectedUser) return;
   const u = selectedUser;
   const color = COLORS[u.id % COLORS.length];
-  document.getElementById('chatAvatar').style.background = color;
-  document.getElementById('chatAvatar').textContent = u.name[0];
+  const av = document.getElementById('chatAvatar');
+  av.style.background = color;
+  av.textContent = u.name[0];
   document.getElementById('chatName').textContent = u.name;
-  document.getElementById('chatMeta').textContent = `${u.model} · ${u.vin.slice(-6)}`;
-  showPage('pageChat');
-  // Auto greeting
-  setTimeout(() => addBotMessage(botReplies[0](u)), 600);
-  replyIndex = 1;
+  document.getElementById('chatMeta').textContent = `${u.model} · ${u.vin}`;
 }
 
 function now() {
@@ -383,7 +643,6 @@ function addMessage(text, type) {
 
 function addBotMessage(text) {
   const el = document.getElementById('chatMessages');
-  // Typing indicator
   const typing = document.createElement('div');
   typing.className = 'msg bot typing-indicator';
   typing.innerHTML = '<div class="bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
@@ -392,7 +651,7 @@ function addBotMessage(text) {
   setTimeout(() => {
     typing.remove();
     addMessage(text, 'bot');
-  }, 800 + Math.random() * 700);
+  }, 700 + Math.random() * 600);
 }
 
 function sendMessage() {
@@ -402,7 +661,6 @@ function sendMessage() {
   addMessage(text, 'user');
   input.value = '';
   input.style.height = 'auto';
-  // Auto reply
   const idx = Math.min(replyIndex, botReplies.length - 1);
   const reply = botReplies[idx](selectedUser);
   replyIndex++;
@@ -410,10 +668,7 @@ function sendMessage() {
 }
 
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 function autoGrow(el) {
@@ -421,8 +676,47 @@ function autoGrow(el) {
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
-function endChat() {
-  openRatingModal();
+function endChat() { openRatingModal(); }
+
+// ===== History =====
+function showHistory() {
+  renderHistory();
+  showMainView('history');
+}
+
+function hideHistory() {
+  showMainView(chatActive ? 'chat' : 'empty');
+}
+
+const RATING_MAP = { good:{label:'好',cls:'good'}, mid:{label:'中',cls:'mid'}, bad:{label:'差',cls:'bad'} };
+
+function renderHistory() {
+  const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
+  const el = document.getElementById('historyList');
+  if (!records.length) {
+    el.innerHTML = '<div class="history-empty"><div class="icon">📋</div><div>暂无测评记录</div></div>';
+    return;
+  }
+  el.innerHTML = records.map(r => {
+    const ri = RATING_MAP[r.rating] || {label:'?',cls:''};
+    const d = new Date(r.time);
+    const ts = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    return `<div class="history-item">
+      <div class="history-top">
+        <div><span class="history-name">${r.userName}</span><span class="history-model"> · ${r.model}</span></div>
+        <span class="history-rating ${ri.cls}">${ri.label}</span>
+      </div>
+      <div class="history-time">${ts}${r.msgCount ? ' · '+r.msgCount+'条消息' : ''}</div>
+      ${r.tags.length ? '<div class="history-tags">'+r.tags.map(t=>`<span class="history-tag">${t}</span>`).join('')+'</div>' : ''}
+      ${r.remark ? '<div style="font-size:12px;color:var(--gray2);margin-top:6px">💬 '+r.remark+'</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function clearHistory() {
+  if (!confirm('确定清空所有测评记录？')) return;
+  localStorage.removeItem('mi_eval_records');
+  renderHistory();
 }
 
 // ===== Rating Modal =====
@@ -443,7 +737,7 @@ function setRating(el) {
 
 function renderTagGrid() {
   document.getElementById('tagGrid').innerHTML = TAGS.map(t =>
-    `<div class="tag-btn" onclick="toggleTag(this, '${t}')">${t}</div>`
+    `<div class="tag-btn" onclick="toggleTag(this,'${t}')">${t}</div>`
   ).join('');
 }
 
@@ -453,10 +747,7 @@ function toggleTag(el, tag) {
 }
 
 function submitRating() {
-  if (!currentRating) {
-    alert('请选择整体评分');
-    return;
-  }
+  if (!currentRating) { alert('请选择整体评分'); return; }
   const record = {
     userId: selectedUser.id,
     userName: selectedUser.name,
@@ -467,47 +758,12 @@ function submitRating() {
     time: new Date().toISOString(),
     msgCount: chatLog.length,
   };
-  // Save to localStorage
   const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
   records.unshift(record);
   localStorage.setItem('mi_eval_records', JSON.stringify(records));
   document.getElementById('ratingModal').classList.remove('active');
-  showPage('pageHistory');
-}
-
-// ===== History =====
-const RATING_MAP = { good: { label:'好', cls:'good' }, mid: { label:'中', cls:'mid' }, bad: { label:'差', cls:'bad' } };
-
-function renderHistory() {
-  const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
-  const el = document.getElementById('historyList');
-  if (!records.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><div>暂无测评记录</div></div>';
-    return;
-  }
-  el.innerHTML = records.map(r => {
-    const ri = RATING_MAP[r.rating] || { label:'?', cls:'' };
-    const d = new Date(r.time);
-    const ts = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-    return `<div class="history-item">
-      <div class="history-top">
-        <div>
-          <span class="history-name">${r.userName}</span>
-          <span class="history-model"> · ${r.model}</span>
-        </div>
-        <span class="history-rating ${ri.cls}">${ri.label}</span>
-      </div>
-      <div class="history-time">${ts}${r.msgCount ? ' · '+r.msgCount+'条消息' : ''}</div>
-      ${r.tags.length ? '<div class="history-tags">' + r.tags.map(t=>`<span class="history-tag">${t}</span>`).join('') + '</div>' : ''}
-      ${r.remark ? '<div style="font-size:13px;color:var(--gray2);margin-top:6px">💬 '+r.remark+'</div>' : ''}
-    </div>`;
-  }).join('');
-}
-
-function clearHistory() {
-  if (!confirm('确定清空所有测评记录？')) return;
-  localStorage.removeItem('mi_eval_records');
-  renderHistory();
+  chatActive = false;
+  showHistory();
 }
 
 // ===== Go =====
