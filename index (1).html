@@ -1,600 +1,519 @@
+      
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智能客服能力验证平台</title>
+<title>小米汽车智能客服测评</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: #f0f2f5; height: 100vh; overflow: hidden; }
+:root {
+  --primary: #FF6900;
+  --dark: #1A1A1A;
+  --bg: #F5F5F7;
+  --white: #FFFFFF;
+  --gray: #E5E5EA;
+  --gray2: #8E8E93;
+  --good: #34C759;
+  --mid: #FF9500;
+  --bad: #FF3B30;
+  --blue: #007AFF;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.active { display: flex; }
 
-/* Layout */
-.app { display: flex; height: 100vh; }
+/* ===== Header ===== */
+.header { background: var(--white); padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--gray); position: sticky; top: 0; z-index: 10; }
+.header h1 { font-size: 18px; font-weight: 600; flex: 1; }
+.header .logo { width: 28px; height: 28px; background: var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; }
+.header .nav-btn { background: none; border: none; font-size: 14px; color: var(--primary); cursor: pointer; font-weight: 500; padding: 6px 12px; border-radius: 8px; transition: background .2s; }
+.header .nav-btn:hover { background: rgba(255,105,0,0.08); }
 
-/* ===== Left Panel ===== */
-.left-panel { width: 320px; min-width: 320px; background: #fff; border-right: 1px solid #e8e8e8; display: flex; flex-direction: column; }
-.left-header { background: linear-gradient(135deg, #FF6900, #ff8533); color: #fff; padding: 18px 20px; flex-shrink: 0; }
-.left-header h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-.left-header p { font-size: 12px; opacity: .85; }
+/* ===== Page 1: User Select ===== */
+.search-bar { padding: 12px 20px; background: var(--white); }
+.search-bar input { width: 100%; padding: 10px 16px; border: 1.5px solid var(--gray); border-radius: 10px; font-size: 14px; outline: none; transition: border-color .2s; }
+.search-bar input:focus { border-color: var(--primary); }
+.tabs { display: flex; gap: 8px; padding: 12px 20px; background: var(--white); border-bottom: 1px solid var(--gray); overflow-x: auto; flex-shrink: 0; }
+.tab { padding: 6px 16px; border-radius: 20px; font-size: 13px; border: 1.5px solid var(--gray); background: var(--white); cursor: pointer; white-space: nowrap; transition: all .2s; }
+.tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.content-area { display: flex; flex: 1; overflow: hidden; }
+.user-list { flex: 1; overflow-y: auto; padding: 8px 12px; }
+.user-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); cursor: pointer; transition: background .15s; }
+.user-item:hover { background: rgba(0,0,0,0.04); }
+.user-item.selected { background: rgba(255,105,0,0.08); border: 1.5px solid var(--primary); }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #fff; font-size: 16px; flex-shrink: 0; }
+.user-item .info { flex: 1; min-width: 0; }
+.user-item .name { font-size: 15px; font-weight: 500; }
+.user-item .meta { font-size: 12px; color: var(--gray2); margin-top: 2px; }
+.user-card { width: 320px; background: var(--white); border-left: 1px solid var(--gray); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.user-card.empty { align-items: center; justify-content: center; color: var(--gray2); font-size: 14px; }
+.card-avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #fff; margin: 0 auto; }
+.card-name { text-align: center; font-size: 20px; font-weight: 600; }
+.card-row { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--gray); }
+.card-row .label { color: var(--gray2); }
+.bottom-bar { padding: 16px 20px; background: var(--white); border-top: 1px solid var(--gray); }
+.btn-primary { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary:not(:disabled):hover { opacity: 0.9; }
 
-/* User input section */
-.user-input-section { padding: 16px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; }
-.user-input-section label { font-size: 12px; color: #888; display: block; margin-bottom: 6px; }
-.user-input-row { display: flex; gap: 8px; }
-.user-input-row input { flex: 1; padding: 9px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; transition: border-color .2s; }
-.user-input-row input:focus { border-color: #FF6900; }
-.btn-go { background: #FF6900; color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
-.btn-go:hover { background: #e55d00; }
-
-/* User info card */
-.user-info-card { padding: 16px; flex-shrink: 0; }
-.user-info-card.empty { display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 13px; padding: 40px 16px; }
-.info-card { background: #fafafa; border-radius: 12px; padding: 16px; }
-.info-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-.info-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #FF6900, #ff8533); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; flex-shrink: 0; }
-.info-name { font-size: 15px; font-weight: 600; color: #333; }
-.info-id { font-size: 12px; color: #999; margin-top: 2px; }
-.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.info-item { background: #fff; border-radius: 8px; padding: 10px; }
-.info-item-label { font-size: 11px; color: #999; margin-bottom: 4px; }
-.info-item-value { font-size: 13px; color: #333; font-weight: 500; }
-.status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-.status-tag.online { background: #e8f5e9; color: #2e7d32; }
-.status-tag.ended { background: #f5f5f5; color: #999; }
-
-/* Session stats */
-.session-stats { padding: 16px; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
-.session-stats h4 { font-size: 12px; color: #999; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
-.stat-label { font-size: 13px; color: #666; }
-.stat-value { font-size: 13px; color: #333; font-weight: 600; }
-
-/* History */
-.history-section { flex: 1; overflow-y: auto; border-top: 1px solid #f0f0f0; }
-.history-section h4 { font-size: 12px; color: #999; padding: 12px 16px 8px; text-transform: uppercase; letter-spacing: 1px; position: sticky; top: 0; background: #fff; }
-.history-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; transition: background .15s; }
-.history-item:hover { background: #fafafa; }
-.history-avatar { width: 32px; height: 32px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #999; flex-shrink: 0; }
-.history-info { flex: 1; min-width: 0; }
-.history-name { font-size: 13px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.history-time { font-size: 11px; color: #bbb; }
-.history-rating { font-size: 11px; color: #FF6900; }
-.history-empty { padding: 20px 16px; text-align: center; color: #ccc; font-size: 12px; }
-
-/* ===== Right Panel ===== */
-.right-panel { flex: 1; display: flex; flex-direction: column; background: #f7f8fa; }
-
-/* Chat header */
-.chat-header { background: #fff; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; flex-shrink: 0; }
-.chat-header-left { display: flex; align-items: center; gap: 10px; }
-.chat-header-left .avatar { width: 32px; height: 32px; border-radius: 50%; background: #FF6900; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-.chat-header-title { font-size: 14px; font-weight: 600; color: #333; }
-.chat-header-sub { font-size: 12px; color: #999; }
-.btn-end { background: #fff; border: 1.5px solid #ff4d4f; color: #ff4d4f; padding: 6px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all .2s; }
-.btn-end:hover { background: #fff1f0; }
-
-/* Welcome */
-.welcome-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: #ccc; }
-.welcome-screen .icon { font-size: 56px; }
-.welcome-screen h3 { color: #999; font-size: 18px; }
-.welcome-screen p { font-size: 13px; }
-
-/* Chat area */
-.chat-area { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
-.chat-area::-webkit-scrollbar { width: 5px; }
-.chat-area::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 3px; }
-
-.msg { display: flex; flex-direction: column; max-width: 70%; animation: fadeIn .3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-.msg.bot { align-self: flex-start; }
+/* ===== Page 2: Chat ===== */
+.chat-header { background: var(--white); padding: 12px 20px; border-bottom: 1px solid var(--gray); display: flex; align-items: center; gap: 12px; }
+.chat-header .avatar { width: 36px; height: 36px; font-size: 14px; }
+.chat-header .info .name { font-size: 15px; font-weight: 600; }
+.chat-header .info .meta { font-size: 12px; color: var(--gray2); }
+.chat-header .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+.chat-header .back-btn:hover { background: rgba(0,0,0,0.05); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 75%; display: flex; flex-direction: column; }
 .msg.user { align-self: flex-end; }
-.msg-sender { font-size: 11px; color: #aaa; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-.msg.user .msg-sender { justify-content: flex-end; }
-.msg-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.6; word-break: break-word; white-space: pre-wrap; }
-.msg.bot .msg-bubble { background: #fff; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-.msg.user .msg-bubble { background: #e3f2fd; color: #1a1a1a; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-.msg-time { font-size: 10px; color: #ccc; margin-top: 3px; }
-.msg.user .msg-time { text-align: right; }
+.msg.bot { align-self: flex-start; }
+.msg .bubble { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+.msg.user .bubble { background: var(--blue); color: #fff; border-bottom-right-radius: 4px; }
+.msg.bot .bubble { background: var(--gray); color: var(--dark); border-bottom-left-radius: 4px; }
+.msg .time { font-size: 11px; color: var(--gray2); margin-top: 4px; padding: 0 4px; }
+.msg.user .time { text-align: right; }
+.typing-indicator .bubble { display: flex; gap: 4px; align-items: center; padding: 12px 18px; }
+.typing-dot { width: 7px; height: 7px; background: var(--gray2); border-radius: 50%; animation: typing 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing { 0%,60%,100%{ opacity:.3; transform:scale(.8); } 30%{ opacity:1; transform:scale(1); } }
+.chat-input { background: var(--white); border-top: 1px solid var(--gray); padding: 12px 16px; display: flex; gap: 8px; align-items: flex-end; }
+.chat-input textarea { flex: 1; padding: 10px 14px; border: 1.5px solid var(--gray); border-radius: 20px; font-size: 14px; resize: none; max-height: 100px; outline: none; font-family: inherit; line-height: 1.4; }
+.chat-input textarea:focus { border-color: var(--primary); }
+.chat-input .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); border: none; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: opacity .2s; flex-shrink: 0; }
+.chat-input .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+.chat-input .end-btn { padding: 10px 16px; background: var(--bad); color: #fff; border: none; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
-.typing-indicator { display: flex; gap: 4px; padding: 4px 0; }
-.typing-indicator span { width: 6px; height: 6px; background: #ccc; border-radius: 50%; animation: bounce 1.4s infinite; }
-.typing-indicator span:nth-child(2) { animation-delay: .2s; }
-.typing-indicator span:nth-child(3) { animation-delay: .4s; }
-@keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+/* ===== Page 3: Rating Modal ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--white); border-radius: 16px; padding: 28px 24px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
+.modal h2 { font-size: 20px; text-align: center; margin-bottom: 24px; }
+.modal .section { margin-bottom: 20px; }
+.modal .section-label { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--dark); }
+.rating-btns { display: flex; gap: 10px; }
+.rating-btn { flex: 1; padding: 12px; border: 2px solid var(--gray); border-radius: var(--radius); text-align: center; cursor: pointer; font-size: 14px; font-weight: 500; transition: all .2s; }
+.rating-btn[data-v="good"]:hover, .rating-btn[data-v="good"].active { border-color: var(--good); background: rgba(52,199,89,0.1); color: var(--good); }
+.rating-btn[data-v="mid"]:hover, .rating-btn[data-v="mid"].active { border-color: var(--mid); background: rgba(255,149,0,0.1); color: var(--mid); }
+.rating-btn[data-v="bad"]:hover, .rating-btn[data-v="bad"].active { border-color: var(--bad); background: rgba(255,59,48,0.1); color: var(--bad); }
+.tag-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-btn { padding: 8px 14px; border: 1.5px solid var(--gray); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all .2s; }
+.tag-btn.active { border-color: var(--primary); background: rgba(255,105,0,0.1); color: var(--primary); }
+.modal textarea { width: 100%; padding: 12px; border: 1.5px solid var(--gray); border-radius: var(--radius); font-size: 14px; resize: vertical; min-height: 80px; outline: none; font-family: inherit; }
+.modal textarea:focus { border-color: var(--primary); }
+.modal .submit-btn { width: 100%; margin-top: 8px; }
 
-/* Input bar */
-.input-bar { display: flex; gap: 10px; padding: 12px 20px; background: #fff; border-top: 1px solid #eee; flex-shrink: 0; }
-.input-bar input { flex: 1; padding: 10px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color .2s; }
-.input-bar input:focus { border-color: #FF6900; }
-.input-bar input:disabled { background: #f5f5f5; cursor: not-allowed; }
-.btn-send { background: #FF6900; color: #fff; border: none; padding: 10px 22px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all .2s; white-space: nowrap; }
-.btn-send:hover { background: #e55d00; }
-.btn-send:disabled { background: #ccc; cursor: not-allowed; }
+/* ===== Page 4: History ===== */
+.history-list { flex: 1; overflow-y: auto; padding: 12px; }
+.history-item { background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.history-name { font-size: 15px; font-weight: 600; }
+.history-model { font-size: 12px; color: var(--gray2); }
+.history-rating { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; color: #fff; }
+.history-rating.good { background: var(--good); }
+.history-rating.mid { background: var(--mid); }
+.history-rating.bad { background: var(--bad); }
+.history-time { font-size: 12px; color: var(--gray2); margin-bottom: 6px; }
+.history-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.history-tag { padding: 3px 10px; background: var(--bg); border-radius: 10px; font-size: 11px; color: var(--gray2); }
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray2); gap: 8px; }
+.empty-state .icon { font-size: 48px; opacity: .5; }
 
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 100; animation: fadeIn .25s; }
-.modal { background: #fff; border-radius: 16px; width: 90%; max-width: 420px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.15); }
-.modal h3 { text-align: center; font-size: 18px; color: #333; margin-bottom: 24px; }
-.rating-group { margin-bottom: 16px; }
-.rating-label { font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 500; }
-.stars { display: flex; gap: 6px; }
-.star { font-size: 26px; cursor: pointer; color: #ddd; transition: color .15s, transform .15s; user-select: none; }
-.star:hover, .star.active { color: #FF6900; transform: scale(1.15); }
-.yesno-group { display: flex; gap: 10px; margin-top: 4px; }
-.yesno-btn { flex: 1; padding: 8px; border: 1.5px solid #e0e0e0; border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; text-align: center; transition: all .2s; }
-.yesno-btn.selected { border-color: #FF6900; background: #fff5ee; color: #FF6900; font-weight: 600; }
-.modal textarea { width: 100%; height: 60px; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 10px; font-size: 13px; resize: none; outline: none; font-family: inherit; margin-top: 4px; }
-.modal textarea:focus { border-color: #FF6900; }
-.btn-submit { width: 100%; background: #FF6900; color: #fff; border: none; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; transition: all .2s; }
-.btn-submit:hover { background: #e55d00; }
-
-.hidden { display: none !important; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .left-panel { width: 260px; min-width: 260px; }
+/* ===== Mobile ===== */
+@media (max-width: 480px) {
+  .user-card { display: none; }
+  .user-card.mobile-show { display: flex; position: fixed; inset: 0; width: 100%; z-index: 50; border: none; }
+  .user-card .close-card { display: block; }
+  .content-area { flex-direction: column; }
+  .modal { margin: 12px; max-width: none; }
+  .msg { max-width: 85%; }
+}
+@media (min-width: 481px) {
+  .user-card .close-card { display: none; }
 }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <!-- Left Panel -->
-  <div class="left-panel">
-    <div class="left-header">
-      <h2>🤖 智能客服验证平台</h2>
-      <p>输入用户ID开始验证对话</p>
-    </div>
-
-    <!-- User Input -->
-    <div class="user-input-section">
-      <label>用户ID</label>
-      <div class="user-input-row">
-        <input id="userIdInput" placeholder="输入ID（如 U10086）" maxlength="20">
-        <button class="btn-go" id="btnGo" onclick="startChat()">进线</button>
-      </div>
-    </div>
-
-    <!-- User Info -->
-    <div class="user-info-card" id="userInfoCard">
-      <div class="empty">输入用户ID后显示用户信息</div>
-    </div>
-
-    <!-- Session Stats -->
-    <div class="session-stats hidden" id="sessionStats">
-      <h4>本次会话</h4>
-      <div class="stat-row"><span class="stat-label">消息轮次</span><span class="stat-value" id="statRounds">0</span></div>
-      <div class="stat-row"><span class="stat-label">会话时长</span><span class="stat-value" id="statDuration">00:00</span></div>
-      <div class="stat-row"><span class="stat-label">状态</span><span class="stat-value" id="statStatus"><span class="status-tag online">对话中</span></span></div>
-    </div>
-
-    <!-- History -->
-    <div class="history-section" id="historySection">
-      <h4>历史验证记录</h4>
-      <div class="history-empty" id="historyEmpty">暂无记录</div>
-      <div id="historyList"></div>
+<!-- ========== PAGE 1: USER SELECT ========== -->
+<div class="page active" id="pageSelect">
+  <div class="header">
+    <div class="logo">Mi</div>
+    <h1>智能客服测评</h1>
+    <button class="nav-btn" onclick="showPage('pageHistory')">📋 历史</button>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="搜索昵称或手机号..." oninput="filterUsers()">
+  </div>
+  <div class="tabs" id="tabsContainer"></div>
+  <div class="content-area">
+    <div class="user-list" id="userList"></div>
+    <div class="user-card empty" id="userCard">
+      <span>👈 选择一个用户查看详情</span>
     </div>
   </div>
-
-  <!-- Right Panel -->
-  <div class="right-panel">
-    <!-- Welcome -->
-    <div class="welcome-screen" id="welcomeScreen">
-      <div class="icon">💬</div>
-      <h3>开始验证对话</h3>
-      <p>在左侧输入用户ID，模拟用户进线</p>
-    </div>
-
-    <!-- Chat Header -->
-    <div class="chat-header hidden" id="chatHeader">
-      <div class="chat-header-left">
-        <div class="avatar">🤖</div>
-        <div>
-          <div class="chat-header-title">智能客服 小米</div>
-          <div class="chat-header-sub" id="chatHeaderSub">对话中</div>
-        </div>
-      </div>
-      <button class="btn-end" id="btnEnd" onclick="endChat()">结束对话</button>
-    </div>
-
-    <!-- Chat -->
-    <div class="chat-area hidden" id="chatArea"></div>
-
-    <!-- Input -->
-    <div class="input-bar hidden" id="inputBar">
-      <input id="msgInput" placeholder="请输入消息..." maxlength="500" onkeydown="if(event.key==='Enter')sendMsg()">
-      <button class="btn-send" id="btnSend" onclick="sendMsg()">发送</button>
-    </div>
+  <div class="bottom-bar">
+    <button class="btn-primary" id="startBtn" disabled onclick="startChat()">开始对话</button>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal-overlay hidden" id="modalOverlay">
-  <div class="modal" id="modalContent"></div>
+<!-- ========== PAGE 2: CHAT ========== -->
+<div class="page" id="pageChat">
+  <div class="chat-header">
+    <button class="back-btn" onclick="showPage('pageSelect')">←</button>
+    <div class="avatar" id="chatAvatar"></div>
+    <div class="info">
+      <div class="name" id="chatName"></div>
+      <div class="meta" id="chatMeta"></div>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input">
+    <textarea id="msgInput" rows="1" placeholder="输入消息..." onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
+    <button class="end-btn" onclick="endChat()">结束对话</button>
+  </div>
+</div>
+
+<!-- ========== PAGE 4: HISTORY ========== -->
+<div class="page" id="pageHistory">
+  <div class="header">
+    <button class="nav-btn" onclick="showPage('pageSelect')" style="order:-1">← 返回</button>
+    <h1>测评记录</h1>
+    <button class="nav-btn" onclick="clearHistory()" style="color:var(--bad)">清空</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<!-- ========== MODAL: RATING ========== -->
+<div class="modal-overlay" id="ratingModal">
+  <div class="modal">
+    <h2>对话评价</h2>
+    <div class="section">
+      <div class="section-label">整体评分 <span style="color:var(--bad)">*</span></div>
+      <div class="rating-btns">
+        <div class="rating-btn" data-v="good" onclick="setRating(this)">👍 好</div>
+        <div class="rating-btn" data-v="mid" onclick="setRating(this)">👌 中</div>
+        <div class="rating-btn" data-v="bad" onclick="setRating(this)">👎 差</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">问题标注（可多选）</div>
+      <div class="tag-grid" id="tagGrid"></div>
+    </div>
+    <div class="section">
+      <div class="section-label">备注</div>
+      <textarea id="remarkInput" placeholder="补充说明..."></textarea>
+    </div>
+    <button class="btn-primary submit-btn" onclick="submitRating()">提交评价</button>
+  </div>
 </div>
 
 <script>
-let userId = '';
-let conversationEnded = false;
-let pendingEndCheck = false;
-let msgRounds = 0;
-let sessionTimer = null;
-let sessionSeconds = 0;
-let historyRecords = [];
+// ===== Mock Data =====
+const COLORS = ['#FF6900','#007AFF','#34C759','#AF52DE','#FF2D55','#5856D6','#FF9500','#00C7BE'];
+const MODELS = ['SU7','SU7 Pro','SU7 Ultra','YU7'];
+const TAGS = ['答非所问','信息错误','态度不好','响应慢','重复回答','无法理解','其他'];
 
-let rating = { overall: 0, humanlike: 0, solved: null, compliant: null, comment: '' };
-
-// Mock user data
-const mockUsers = {
-  'U10086': { name: '张三', phone: '138****8086', car: 'SU7 Max', vin: 'LXM***0086', city: '北京', regDate: '2025-03-15' },
-  'U10010': { name: '李四', phone: '139****0010', car: 'SU7 标准版', vin: 'LXM***0010', city: '上海', regDate: '2025-06-22' },
-  'U10000': { name: '王五', phone: '136****0000', car: 'SU7 Pro', vin: 'LXM***0000', city: '深圳', regDate: '2025-01-08' },
-};
-
-function getMockUser(id) {
-  if (mockUsers[id]) return mockUsers[id];
-  // Generate random user for unknown IDs
-  const names = ['赵六','孙七','周八','吴九','郑十','冯雪','陈明','杨光','朱磊','何芳'];
-  const cars = ['SU7 标准版','SU7 Pro','SU7 Max','SU7 Ultra'];
-  const cities = ['北京','上海','广州','深圳','杭州','成都','武汉','南京','西安','重庆'];
-  const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  return {
-    name: rnd(names),
-    phone: '1' + (3+Math.floor(Math.random()*6)) + Math.floor(Math.random()*10) + '****' + String(Math.floor(Math.random()*9000)+1000),
-    car: rnd(cars),
-    vin: 'LXM***' + id.replace(/\D/g,'').slice(-4).padStart(4,'0'),
-    city: rnd(cities),
-    regDate: '2025-' + String(Math.floor(Math.random()*12)+1).padStart(2,'0') + '-' + String(Math.floor(Math.random()*28)+1).padStart(2,'0')
-  };
-}
-
-// Keyword-based reply rules
-const rules = [
-  { keywords: ['订单','查单','物流','快递','发货','运单','提车','交付'], reply: '已为您查询订单信息 📦\n\n订单号：XM202604150088\n车型：{car}\n状态：排产中，预计4月底可交付\n交付中心：{city}小米汽车交付中心\n\n交付前会有专属顾问联系您确认时间，请保持手机畅通。' },
-  { keywords: ['退订','退车','取消订单','不要了'], reply: '了解您的退订需求 🔄\n\n退订规则：\n• 大定7天内可无理由退订，全额退还定金\n• 超过7天退订需扣除一定费用\n• 已排产订单退订需人工审核\n\n请确认您的订单号，我将为您查询退订条件。' },
-  { keywords: ['退款','退钱','定金'], reply: '关于退款事宜 💰\n\n退款流程：\n1. 提交申请后1-3个工作日审核\n2. 审核通过后5-7个工作日原路退回\n3. 大额退款可能需要额外处理时间\n\n如您已提交退款申请，请提供订单号查询进度。' },
-  { keywords: ['价格','多少钱','优惠','折扣','权益'], reply: '小米SU7系列价格 💡\n\n• SU7 标准版：¥215,900起\n• SU7 Pro：¥245,900起\n• SU7 Max：¥299,900起\n• SU7 Ultra：¥529,900起\n\n当前权益：首任车主终身质保、免费充电桩安装等，详情可访问小米汽车官网。' },
-  { keywords: ['配置','参数','规格','性能','续航','电池','马力','加速'], reply: '小米SU7 Max 核心参数 🚗\n\n• 动力：双电机四驱，673马力\n• 加速：0-100km/h 2.78秒\n• 续航：CLTC 800km\n• 电池：101kWh 宁德时代麒麟电池\n• 智驾：全套Xiaomi Pilot Max\n• 底盘：前双叉臂+后五连杆，CDC+空气弹簧\n\n需要了解其他版本的参数吗？' },
-  { keywords: ['故障','坏了','异常','报警','报错','黑屏','死机','卡顿','抖动'], reply: '很抱歉给您带来不便 😔\n\n请先尝试：\n1. 将车辆安全停放，长按方向盘重启车机\n2. 检查是否有OTA更新\n3. 观察故障是否可复现\n\n请提供：\n• 故障现象描述\n• 发生时间和行驶状态\n• 仪表盘是否有报警信息\n\n如涉及行车安全问题，建议立即联系道路救援：400-100-5678。' },
-  { keywords: ['维修','修车','保养','保修','售后','服务中心'], reply: '维保服务信息 🔧\n\n保修政策：\n• 整车质保：5年/10万公里\n• 三电系统：8年/16万公里\n• 首任车主：终身质保（需满足条件）\n\n预约方式：\n1. 小米汽车APP → 服务 → 预约维保\n2. 客服热线：400-100-5678\n3. {city}最近服务中心距您约5km\n\n需要帮您预约到店吗？' },
-  { keywords: ['充电','充电桩','家充','超充','补能'], reply: '充电服务 ⚡\n\n• 家充桩：随车附赠7kW家充桩，免费上门安装\n• 小米超充：全国已建成500+站，APP可查看\n• 第三方：兼容国标充电桩\n\nSU7 Max 充电速度：\n• 超充：15分钟补能350km\n• 家充：约12小时充满\n\n如需安装家充桩，请在APP提交安装申请。' },
-  { keywords: ['保险','车险','续保','理赔','出险'], reply: '车险服务 🛡️\n\n• 新车保险：可通过小米汽车APP一键投保\n• 推荐方案：交强+商业三者200万+车损\n• 保费参考：SU7 Max 约¥8,000-9,500/年\n\n出险理赔流程：\n1. 现场报警+拍照取证\n2. 联系保险公司报案\n3. 前往小米授权维修中心定损维修\n\n需要详细了解哪方面？' },
-  { keywords: ['OTA','升级','更新','版本','系统'], reply: 'OTA更新信息 📲\n\n当前最新版本：HyperOS Auto V2.5.0\n更新内容：\n• 新增城市NOA覆盖10个城市\n• 优化语音助手响应速度\n• 提升空调自动控制体验\n• 修复已知问题\n\n更新方式：车机设置→系统更新→检查更新\n建议在WiFi环境、电量>50%时进行更新。' },
-  { keywords: ['试驾','体验','预约'], reply: '试驾预约 🏎️\n\n试驾方式：\n1. 到店试驾：前往{city}小米汽车门店\n2. 上门试驾：部分城市支持\n\n可试驾车型：SU7全系\n\n预约方式：\n• 小米汽车APP/官网在线预约\n• 拨打400-100-5678\n\n需要帮您查询{city}最近的门店吗？' },
-  { keywords: ['投诉','不满','差评','态度差','失望'], reply: '非常抱歉给您带来了不好的体验 🙏\n\n我已记录您的反馈，会安排专人跟进处理：\n1. 24小时内会有客服主管联系您\n2. 您也可以拨打投诉专线：400-100-5678 转3\n\n请问能具体描述一下遇到的问题吗？我会如实记录并推动改善。' },
+const mockUsers = [
+  { id:1, name:'张明远', phone:'138****1234', model:'SU7', vin:'LMWSU7A00R1001234', buyDate:'2025-06-15', serviceEnd:'2028-06-15' },
+  { id:2, name:'李思琪', phone:'139****5678', model:'SU7 Pro', vin:'LMWSU7B01R1005678', buyDate:'2025-07-20', serviceEnd:'2028-07-20' },
+  { id:3, name:'王浩然', phone:'136****9012', model:'SU7 Ultra', vin:'LMWSU7C02R1009012', buyDate:'2025-08-10', serviceEnd:'2028-08-10' },
+  { id:4, name:'赵雨萱', phone:'137****3456', model:'YU7', vin:'LMWYU7A03R1003456', buyDate:'2025-09-01', serviceEnd:'2028-09-01' },
+  { id:5, name:'陈宇飞', phone:'135****7890', model:'SU7', vin:'LMWSU7A04R1007890', buyDate:'2025-05-18', serviceEnd:'2028-05-18' },
+  { id:6, name:'刘诗涵', phone:'188****2345', model:'SU7 Pro', vin:'LMWSU7B05R1002345', buyDate:'2025-10-12', serviceEnd:'2028-10-12' },
+  { id:7, name:'杨凯文', phone:'159****6789', model:'YU7', vin:'LMWYU7A06R1006789', buyDate:'2025-11-05', serviceEnd:'2028-11-05' },
+  { id:8, name:'吴晨曦', phone:'186****0123', model:'SU7 Ultra', vin:'LMWSU7C07R1000123', buyDate:'2025-04-22', serviceEnd:'2028-04-22' },
+  { id:9, name:'周嘉怡', phone:'133****4567', model:'SU7 Pro', vin:'LMWSU7B08R1004567', buyDate:'2025-12-01', serviceEnd:'2028-12-01' },
+  { id:10, name:'孙天佑', phone:'152****8901', model:'SU7', vin:'LMWSU7A09R1008901', buyDate:'2026-01-15', serviceEnd:'2029-01-15' },
 ];
 
-const endKeywords = ['没有了','没了','就这些','就这样','谢谢','感谢','好的谢谢','ok谢谢','嗯谢谢','没别的了','没其他了'];
-const noMoreKeywords = ['没有','没了','不','不用','不需要','没','无','不了','算了'];
+const botReplies = [
+  u => `您好 ${u.name}，我是小米汽车智能客服。很高兴为您服务，请问有什么可以帮您？`,
+  u => `关于您的 ${u.model}，我来查询一下相关信息。您的车辆VIN号为 ${u.vin}，购车日期 ${u.buyDate}，服务保障期至 ${u.serviceEnd}。请问具体遇到了什么问题？`,
+  () => '好的，我理解您的问题了。根据小米汽车售后政策，这种情况可以通过以下方式解决：\n1. 预约到店检测\n2. 远程OTA诊断\n3. 联系专属服务顾问\n您希望选择哪种方式？',
+  () => '非常抱歉给您带来不便。我已经为您记录了此问题，相关技术团队会在24小时内跟进处理。您还可以在"小米汽车"App中查看处理进度。',
+  () => '感谢您的反馈！如果还有其他问题，随时可以联系我们。祝您用车愉快！🚗',
+  () => '这个问题我需要进一步确认，请您稍等片刻。根据系统记录，建议您先检查以下几点：\n• 确认车辆固件已更新至最新版本\n• 检查网络连接是否正常\n• 重启车机系统后再试',
+];
 
-function getTime() {
-  const d = new Date();
-  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' + d.getSeconds().toString().padStart(2,'0');
+// ===== State =====
+let selectedUser = null;
+let currentTab = '全部';
+let chatLog = [];
+let replyIndex = 0;
+let currentRating = null;
+let selectedTags = new Set();
+
+// ===== Init =====
+function init() {
+  renderTabs();
+  renderUsers();
+  renderTagGrid();
+  renderHistory();
 }
 
-function formatDuration(sec) {
-  const m = Math.floor(sec / 60).toString().padStart(2,'0');
-  const s = (sec % 60).toString().padStart(2,'0');
-  return m + ':' + s;
+// ===== Page Nav =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'pageHistory') renderHistory();
 }
 
-function startSessionTimer() {
-  sessionSeconds = 0;
-  sessionTimer = setInterval(() => {
-    sessionSeconds++;
-    document.getElementById('statDuration').textContent = formatDuration(sessionSeconds);
-  }, 1000);
+// ===== Tabs =====
+function renderTabs() {
+  const tabs = ['全部', ...MODELS];
+  const c = document.getElementById('tabsContainer');
+  c.innerHTML = tabs.map(t => `<div class="tab${t===currentTab?' active':''}" onclick="switchTab('${t}')">${t}</div>`).join('');
 }
 
-function stopSessionTimer() {
-  if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+function switchTab(t) {
+  currentTab = t;
+  renderTabs();
+  filterUsers();
 }
 
-function startChat() {
-  const input = document.getElementById('userIdInput');
-  const newId = input.value.trim();
-  if (!newId) { input.focus(); input.style.borderColor = '#f44336'; setTimeout(() => input.style.borderColor = '', 1500); return; }
-
-  // If there's an active chat, end it first (auto-submit with skip rating)
-  if (userId && !conversationEnded) {
-    endChatSilent();
-  }
-
-  userId = newId;
-  conversationEnded = false;
-  pendingEndCheck = false;
-  msgRounds = 0;
-
-  // Show user info
-  const user = getMockUser(userId);
-  document.getElementById('userInfoCard').innerHTML = `
-    <div class="info-card">
-      <div class="info-card-header">
-        <div class="info-avatar">${user.name[0]}</div>
-        <div><div class="info-name">${user.name}</div><div class="info-id">ID: ${userId}</div></div>
-      </div>
-      <div class="info-grid">
-        <div class="info-item"><div class="info-item-label">手机号</div><div class="info-item-value">${user.phone}</div></div>
-        <div class="info-item"><div class="info-item-label">车型</div><div class="info-item-value">${user.car}</div></div>
-        <div class="info-item"><div class="info-item-label">城市</div><div class="info-item-value">${user.city}</div></div>
-        <div class="info-item"><div class="info-item-label">购车日期</div><div class="info-item-value">${user.regDate}</div></div>
-      </div>
-    </div>
-  `;
-
-  // Show session stats
-  document.getElementById('sessionStats').classList.remove('hidden');
-  document.getElementById('statRounds').textContent = '0';
-  document.getElementById('statStatus').innerHTML = '<span class="status-tag online">对话中</span>';
-
-  // Show chat UI
-  document.getElementById('welcomeScreen').classList.add('hidden');
-  document.getElementById('chatHeader').classList.remove('hidden');
-  document.getElementById('chatArea').classList.remove('hidden');
-  document.getElementById('inputBar').classList.remove('hidden');
-  document.getElementById('chatHeaderSub').textContent = '对话中 · 用户 ' + userId;
-  document.getElementById('btnEnd').style.display = '';
-
-  // Clear chat
-  document.getElementById('chatArea').innerHTML = '';
-  document.getElementById('msgInput').disabled = false;
-  document.getElementById('btnSend').disabled = false;
-  document.getElementById('btnGo').textContent = '切换';
-
-  startSessionTimer();
-  addBotMsg('您好！我是小米汽车智能客服，很高兴为您服务 🚗\n请问有什么可以帮您？');
-  document.getElementById('msgInput').focus();
-}
-
-function endChatSilent() {
-  // End without rating modal (when switching users)
-  conversationEnded = true;
-  stopSessionTimer();
-  addHistoryRecord(null); // null means no rating
-}
-
-function addMsg(text, type) {
-  const area = document.getElementById('chatArea');
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ' + type;
-
-  const senderName = type === 'bot' ? '智能客服小米' : '用户 ' + userId;
-  wrap.innerHTML = `
-    <div class="msg-sender">${senderName} · ${getTime()}</div>
-    <div class="msg-bubble"></div>
-  `;
-  area.appendChild(wrap);
-  area.scrollTop = area.scrollHeight;
-
-  const bubble = wrap.querySelector('.msg-bubble');
-  if (type === 'user') {
-    bubble.textContent = text;
-  } else {
-    typeText(bubble, text, area);
-  }
-}
-
-function typeText(el, text, area, i) {
-  i = i || 0;
-  if (i < text.length) {
-    el.textContent += text[i];
-    if (area) area.scrollTop = area.scrollHeight;
-    setTimeout(() => typeText(el, text, area, i + 1), 15 + Math.random() * 18);
-  }
-}
-
-function addBotMsg(text) {
-  // Replace placeholders with user data
-  const user = getMockUser(userId);
-  text = text.replace(/\{car\}/g, user.car).replace(/\{city\}/g, user.city).replace(/\{name\}/g, user.name);
-  addMsg(text, 'bot');
-}
-
-function addUserMsg(text) { addMsg(text, 'user'); }
-
-function showTyping() {
-  const area = document.getElementById('chatArea');
-  const div = document.createElement('div');
-  div.className = 'msg bot'; div.id = 'typingMsg';
-  div.innerHTML = `<div class="msg-sender">智能客服小米 · 输入中...</div><div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-}
-
-function removeTyping() { const t = document.getElementById('typingMsg'); if (t) t.remove(); }
-
-function findReply(text) {
-  const lower = text.toLowerCase();
-  for (const r of rules) {
-    if (r.keywords.some(k => lower.includes(k))) return r.reply;
-  }
-  return '感谢您的反馈！这个问题我需要进一步确认，建议您：\n1. 尝试用关键词描述（如"充电""保养""订单"等）\n2. 拨打人工客服热线：400-100-5678\n3. 在小米汽车APP中提交服务工单\n\n请问还有其他我可以帮您的吗？';
-}
-
-function sendMsg() {
-  if (conversationEnded) return;
-  const input = document.getElementById('msgInput');
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = '';
-  addUserMsg(text);
-  msgRounds++;
-  document.getElementById('statRounds').textContent = msgRounds;
-
-  const btn = document.getElementById('btnSend');
-  const inp = document.getElementById('msgInput');
-  btn.disabled = true; inp.disabled = true;
-
-  if (pendingEndCheck) {
-    pendingEndCheck = false;
-    if (noMoreKeywords.some(k => text === k || text.startsWith(k))) {
-      setTimeout(() => {
-        showTyping();
-        setTimeout(() => {
-          removeTyping();
-          addBotMsg('感谢您的咨询，祝您用车愉快！🚗✨');
-          setTimeout(() => { btn.disabled = false; inp.disabled = false; triggerEnd(); }, 600);
-        }, 700);
-      }, 300);
-      return;
-    } else {
-      replyNormal(text, btn, inp);
-      return;
-    }
-  }
-
-  if (endKeywords.some(k => text.includes(k))) {
-    setTimeout(() => {
-      showTyping();
-      setTimeout(() => {
-        removeTyping();
-        addBotMsg('请问还有其他问题需要帮助吗？');
-        pendingEndCheck = true;
-        btn.disabled = false; inp.disabled = false;
-      }, 700);
-    }, 300);
-    return;
-  }
-
-  replyNormal(text, btn, inp);
-}
-
-function replyNormal(text, btn, inp) {
-  setTimeout(() => {
-    showTyping();
-    setTimeout(() => {
-      removeTyping();
-      addBotMsg(findReply(text));
-      btn.disabled = false; inp.disabled = false;
-    }, 600 + Math.random() * 500);
-  }, 300);
-}
-
-function triggerEnd() {
-  conversationEnded = true;
-  stopSessionTimer();
-  document.getElementById('msgInput').disabled = true;
-  document.getElementById('btnSend').disabled = true;
-  document.getElementById('btnEnd').style.display = 'none';
-  document.getElementById('chatHeaderSub').textContent = '对话已结束';
-  document.getElementById('statStatus').innerHTML = '<span class="status-tag ended">已结束</span>';
-  showRatingModal();
-}
-
-function endChat() {
-  if (conversationEnded) return;
-  addBotMsg('对话已结束，感谢您的咨询！😊');
-  setTimeout(triggerEnd, 500);
-}
-
-function showRatingModal() {
-  rating = { overall: 0, humanlike: 0, solved: null, compliant: null, comment: '' };
-  document.getElementById('modalContent').innerHTML = `
-    <h3>📋 服务评价</h3>
-    <div class="rating-group">
-      <div class="rating-label">整体评价</div>
-      <div class="stars" id="starOverall">${makeStars('overall')}</div>
-    </div>
-    <div class="rating-group">
-      <div class="rating-label">拟人度评价</div>
-      <div class="stars" id="starHumanlike">${makeStars('humanlike')}</div>
-    </div>
-    <div class="rating-group">
-      <div class="rating-label">是否解决问题</div>
-      <div class="yesno-group">
-        <div class="yesno-btn" onclick="setYN('solved',true,this)">✅ 已解决</div>
-        <div class="yesno-btn" onclick="setYN('solved',false,this)">❌ 未解决</div>
-      </div>
-    </div>
-    <div class="rating-group">
-      <div class="rating-label">是否合规</div>
-      <div class="yesno-group">
-        <div class="yesno-btn" onclick="setYN('compliant',true,this)">✅ 合规</div>
-        <div class="yesno-btn" onclick="setYN('compliant',false,this)">❌ 不合规</div>
-      </div>
-    </div>
-    <div class="rating-group">
-      <div class="rating-label">备注（可选）</div>
-      <textarea placeholder="输入评价或改进建议..." oninput="rating.comment=this.value"></textarea>
-    </div>
-    <button class="btn-submit" onclick="submitRating()">提交评价</button>
-  `;
-  document.getElementById('modalOverlay').classList.remove('hidden');
-}
-
-function makeStars(field) {
-  let h = '';
-  for (let i = 1; i <= 5; i++) h += `<span class="star" data-val="${i}" onclick="setStar('${field}',${i})">★</span>`;
-  return h;
-}
-
-function setStar(field, val) {
-  rating[field] = val;
-  const cid = field === 'overall' ? 'starOverall' : 'starHumanlike';
-  document.getElementById(cid).querySelectorAll('.star').forEach(s => {
-    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+// ===== User List =====
+function getFiltered() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  return mockUsers.filter(u => {
+    const matchModel = currentTab === '全部' || u.model === currentTab;
+    const matchSearch = !q || u.name.toLowerCase().includes(q) || u.phone.includes(q);
+    return matchModel && matchSearch;
   });
 }
 
-function setYN(field, val, el) {
-  rating[field] = val;
-  el.parentElement.querySelectorAll('.yesno-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
+function filterUsers() { renderUsers(); }
+
+function renderUsers() {
+  const list = getFiltered();
+  const el = document.getElementById('userList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><div>没有找到匹配的用户</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(u => {
+    const color = COLORS[u.id % COLORS.length];
+    const sel = selectedUser && selectedUser.id === u.id;
+    return `<div class="user-item${sel?' selected':''}" onclick="selectUser(${u.id})">
+      <div class="avatar" style="background:${color}">${u.name[0]}</div>
+      <div class="info">
+        <div class="name">${u.name}</div>
+        <div class="meta">${u.model} · ${u.vin.slice(-6)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectUser(id) {
+  selectedUser = mockUsers.find(u => u.id === id);
+  renderUsers();
+  renderUserCard();
+  document.getElementById('startBtn').disabled = false;
+}
+
+function renderUserCard() {
+  const card = document.getElementById('userCard');
+  if (!selectedUser) {
+    card.className = 'user-card empty';
+    card.innerHTML = '<span>👈 选择一个用户查看详情</span>';
+    return;
+  }
+  const u = selectedUser;
+  const color = COLORS[u.id % COLORS.length];
+  card.className = 'user-card mobile-show';
+  card.innerHTML = `
+    <button class="close-card nav-btn" onclick="closeMobileCard()" style="align-self:flex-end;font-size:20px;padding:4px 8px">✕</button>
+    <div class="card-avatar" style="background:${color}">${u.name[0]}</div>
+    <div class="card-name">${u.name}</div>
+    <div class="card-row"><span class="label">手机号</span><span>${u.phone}</span></div>
+    <div class="card-row"><span class="label">车型</span><span>${u.model}</span></div>
+    <div class="card-row"><span class="label">VIN</span><span>${u.vin}</span></div>
+    <div class="card-row"><span class="label">购车时间</span><span>${u.buyDate}</span></div>
+    <div class="card-row"><span class="label">服务到期</span><span>${u.serviceEnd}</span></div>
+    <div style="flex:1"></div>
+    <button class="btn-primary" onclick="closeMobileCard()">确认选择</button>
+  `;
+}
+
+function closeMobileCard() {
+  const card = document.getElementById('userCard');
+  if (window.innerWidth <= 480) {
+    card.classList.remove('mobile-show');
+    card.className = 'user-card';
+    // Keep the card content for desktop
+  }
+}
+
+// ===== Chat =====
+function startChat() {
+  if (!selectedUser) return;
+  chatLog = [];
+  replyIndex = 0;
+  document.getElementById('chatMessages').innerHTML = '';
+  const u = selectedUser;
+  const color = COLORS[u.id % COLORS.length];
+  document.getElementById('chatAvatar').style.background = color;
+  document.getElementById('chatAvatar').textContent = u.name[0];
+  document.getElementById('chatName').textContent = u.name;
+  document.getElementById('chatMeta').textContent = `${u.model} · ${u.vin.slice(-6)}`;
+  showPage('pageChat');
+  // Auto greeting
+  setTimeout(() => addBotMessage(botReplies[0](u)), 600);
+  replyIndex = 1;
+}
+
+function now() {
+  const d = new Date();
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+function addMessage(text, type) {
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${type}`;
+  div.innerHTML = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div><div class="time">${now()}</div>`;
+  el.appendChild(div);
+  chatLog.push({ text, type, time: new Date().toISOString() });
+  el.scrollTop = el.scrollHeight;
+}
+
+function addBotMessage(text) {
+  const el = document.getElementById('chatMessages');
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'msg bot typing-indicator';
+  typing.innerHTML = '<div class="bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  el.appendChild(typing);
+  el.scrollTop = el.scrollHeight;
+  setTimeout(() => {
+    typing.remove();
+    addMessage(text, 'bot');
+  }, 800 + Math.random() * 700);
+}
+
+function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage(text, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+  // Auto reply
+  const idx = Math.min(replyIndex, botReplies.length - 1);
+  const reply = botReplies[idx](selectedUser);
+  replyIndex++;
+  setTimeout(() => addBotMessage(reply), 300);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function endChat() {
+  openRatingModal();
+}
+
+// ===== Rating Modal =====
+function openRatingModal() {
+  currentRating = null;
+  selectedTags.clear();
+  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('remarkInput').value = '';
+  document.getElementById('ratingModal').classList.add('active');
+}
+
+function setRating(el) {
+  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentRating = el.dataset.v;
+}
+
+function renderTagGrid() {
+  document.getElementById('tagGrid').innerHTML = TAGS.map(t =>
+    `<div class="tag-btn" onclick="toggleTag(this, '${t}')">${t}</div>`
+  ).join('');
+}
+
+function toggleTag(el, tag) {
+  el.classList.toggle('active');
+  selectedTags.has(tag) ? selectedTags.delete(tag) : selectedTags.add(tag);
 }
 
 function submitRating() {
-  if (!rating.overall) { alert('请选择整体评价'); return; }
-  if (!rating.humanlike) { alert('请选择拟人度评价'); return; }
-  if (rating.solved === null) { alert('请选择是否解决问题'); return; }
-  if (rating.compliant === null) { alert('请选择是否合规'); return; }
-
-  const record = { userId, ...rating, rounds: msgRounds, duration: formatDuration(sessionSeconds), time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) };
-  console.log('评价数据:', record);
-  addHistoryRecord(record);
-
-  document.getElementById('modalContent').innerHTML = `
-    <div style="text-align:center;padding:30px 0;">
-      <div style="font-size:44px;margin-bottom:14px;">✅</div>
-      <h3 style="margin-bottom:6px;">评价已提交</h3>
-      <p style="color:#888;font-size:13px;">可继续输入新用户ID开始下一轮验证</p>
-    </div>
-  `;
-  setTimeout(() => {
-    document.getElementById('modalOverlay').classList.add('hidden');
-    document.getElementById('userIdInput').value = '';
-    document.getElementById('userIdInput').focus();
-    document.getElementById('btnGo').textContent = '进线';
-  }, 1500);
-}
-
-function addHistoryRecord(record) {
-  document.getElementById('historyEmpty').classList.add('hidden');
-  const list = document.getElementById('historyList');
-  const user = getMockUser(userId);
-  const div = document.createElement('div');
-  div.className = 'history-item';
-
-  let ratingText = '未评价';
-  if (record && record.overall) {
-    ratingText = '★'.repeat(record.overall) + ' · ' + record.rounds + '轮 · ' + record.duration;
+  if (!currentRating) {
+    alert('请选择整体评分');
+    return;
   }
-
-  div.innerHTML = `
-    <div class="history-avatar">${user.name[0]}</div>
-    <div class="history-info">
-      <div class="history-name">${user.name}（${userId}）</div>
-      <div class="history-time">${new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})} · ${user.car}</div>
-      <div class="history-rating">${ratingText}</div>
-    </div>
-  `;
-  list.insertBefore(div, list.firstChild);
+  const record = {
+    userId: selectedUser.id,
+    userName: selectedUser.name,
+    model: selectedUser.model,
+    rating: currentRating,
+    tags: [...selectedTags],
+    remark: document.getElementById('remarkInput').value.trim(),
+    time: new Date().toISOString(),
+    msgCount: chatLog.length,
+  };
+  // Save to localStorage
+  const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
+  records.unshift(record);
+  localStorage.setItem('mi_eval_records', JSON.stringify(records));
+  document.getElementById('ratingModal').classList.remove('active');
+  showPage('pageHistory');
 }
 
-// Enter on user ID input
-document.getElementById('userIdInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') startChat();
-});
+// ===== History =====
+const RATING_MAP = { good: { label:'好', cls:'good' }, mid: { label:'中', cls:'mid' }, bad: { label:'差', cls:'bad' } };
+
+function renderHistory() {
+  const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
+  const el = document.getElementById('historyList');
+  if (!records.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><div>暂无测评记录</div></div>';
+    return;
+  }
+  el.innerHTML = records.map(r => {
+    const ri = RATING_MAP[r.rating] || { label:'?', cls:'' };
+    const d = new Date(r.time);
+    const ts = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    return `<div class="history-item">
+      <div class="history-top">
+        <div>
+          <span class="history-name">${r.userName}</span>
+          <span class="history-model"> · ${r.model}</span>
+        </div>
+        <span class="history-rating ${ri.cls}">${ri.label}</span>
+      </div>
+      <div class="history-time">${ts}${r.msgCount ? ' · '+r.msgCount+'条消息' : ''}</div>
+      ${r.tags.length ? '<div class="history-tags">' + r.tags.map(t=>`<span class="history-tag">${t}</span>`).join('') + '</div>' : ''}
+      ${r.remark ? '<div style="font-size:13px;color:var(--gray2);margin-top:6px">💬 '+r.remark+'</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function clearHistory() {
+  if (!confirm('确定清空所有测评记录？')) return;
+  localStorage.removeItem('mi_eval_records');
+  renderHistory();
+}
+
+// ===== Go =====
+init();
 </script>
 </body>
 </html>
+
+    
