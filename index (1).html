@@ -115,13 +115,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 }
 .sidebar-footer button:hover { background: var(--gray3); border-color: var(--gray2); }
 
-.sidebar-empty {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  color: var(--gray2); font-size: 13px; gap: 6px;
-}
-.sidebar-empty .icon { font-size: 32px; opacity: .4; }
-
 /* ===== Main Panel (Center) ===== */
 .main-panel {
   flex: 1; display: flex; flex-direction: column;
@@ -130,7 +123,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
   position: relative;
 }
 
-/* -- Empty state -- */
 .main-empty {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -140,7 +132,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .main-empty .title { font-size: 16px; font-weight: 500; }
 .main-empty .desc { font-size: 13px; }
 
-/* -- Chat view -- */
 .chat-view { display: none; flex-direction: column; flex: 1; min-height: 0; }
 .chat-view.active { display: flex; }
 
@@ -222,7 +213,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .chat-inputbar .send-btn:disabled { opacity: .35; cursor: not-allowed; }
 .chat-inputbar .send-btn:not(:disabled):hover { opacity: .85; }
 
-/* -- History view -- */
+/* History view */
 .history-view { display: none; flex-direction: column; flex: 1; min-height: 0; }
 .history-view.active { display: flex; }
 
@@ -257,13 +248,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .history-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
 .history-name { font-size: 14px; font-weight: 600; }
 .history-model { font-size: 12px; color: var(--gray2); }
-.history-rating {
+.history-badge {
   padding: 3px 10px; border-radius: 10px;
   font-size: 11px; font-weight: 600; color: #fff;
 }
-.history-rating.good { background: var(--good); }
-.history-rating.mid { background: var(--mid); }
-.history-rating.bad { background: var(--bad); }
+.history-badge.pass { background: var(--good); }
+.history-badge.fail { background: var(--bad); }
+.history-scores { font-size: 12px; color: var(--gray2); margin-bottom: 4px; }
 .history-time { font-size: 12px; color: var(--gray2); margin-bottom: 6px; }
 .history-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .history-tag {
@@ -277,101 +268,135 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 }
 .history-empty .icon { font-size: 40px; opacity: .35; }
 
-/* ===== Right Detail Panel ===== */
-.detail-panel {
+/* ===== Right Eval Panel ===== */
+.eval-panel {
   width: 300px; min-width: 300px;
   background: var(--white);
   border-left: 1px solid var(--border);
   display: flex; flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
 }
-.detail-panel::-webkit-scrollbar { width: 4px; }
-.detail-panel::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 4px; }
 
-.detail-empty {
+.eval-empty {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  color: var(--gray2); font-size: 13px; gap: 6px;
+  color: var(--gray2); font-size: 13px; gap: 8px;
 }
-.detail-empty .icon { font-size: 36px; opacity: .35; }
+.eval-empty .icon { font-size: 36px; opacity: .35; }
 
-.detail-content { padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
-.detail-avatar {
-  width: 64px; height: 64px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px; font-weight: 700; color: #fff; margin: 0 auto;
+.eval-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  overflow-y: auto; min-height: 0;
 }
-.detail-name { text-align: center; font-size: 18px; font-weight: 600; }
-.detail-badge {
-  text-align: center; margin-top: -8px;
-}
-.detail-badge span {
-  display: inline-block; padding: 2px 10px;
-  background: var(--primary-light); color: var(--primary);
-  border-radius: 10px; font-size: 12px; font-weight: 500;
-}
-.detail-section { margin-top: 4px; }
-.detail-section-title {
-  font-size: 11px; color: var(--gray2); text-transform: uppercase;
-  letter-spacing: .5px; font-weight: 600; margin-bottom: 10px;
-  padding-bottom: 6px; border-bottom: 1px solid var(--border);
-}
-.detail-row {
-  display: flex; justify-content: space-between;
-  font-size: 13px; padding: 7px 0;
-}
-.detail-row .label { color: var(--gray2); }
-.detail-row .value { font-weight: 500; text-align: right; max-width: 60%; word-break: break-all; }
+.eval-wrap::-webkit-scrollbar { width: 4px; }
+.eval-wrap::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 4px; }
 
-/* ===== Modal ===== */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: none; align-items: center; justify-content: center;
-  z-index: 100; backdrop-filter: blur(2px);
+/* Chat-active notice */
+.eval-notice {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px;
+  background: var(--primary-light);
+  border-bottom: 1px solid rgba(255,105,0,.15);
+  font-size: 12px; color: var(--primary);
+  flex-shrink: 0;
 }
-.modal-overlay.active { display: flex; }
-.modal {
-  background: var(--white); border-radius: var(--radius-lg);
-  padding: 28px 24px; width: 440px; max-height: 85vh;
-  overflow-y: auto; box-shadow: var(--shadow-lg);
+.eval-notice .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--primary); flex-shrink: 0;
+  animation: pulse 1.4s infinite;
 }
-.modal h2 { font-size: 18px; text-align: center; margin-bottom: 20px; }
-.modal .section { margin-bottom: 18px; }
-.modal .section-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-.rating-btns { display: flex; gap: 8px; }
-.rating-btn {
-  flex: 1; padding: 10px; border: 1.5px solid var(--border);
-  border-radius: var(--radius); text-align: center;
-  cursor: pointer; font-size: 13px; font-weight: 500;
-  transition: all .15s; background: var(--white);
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.75)} }
+
+.eval-title {
+  font-size: 14px; font-weight: 600;
+  padding: 16px 16px 0;
+  flex-shrink: 0;
 }
-.rating-btn[data-v="good"]:hover, .rating-btn[data-v="good"].active { border-color: var(--good); background: rgba(52,199,89,0.08); color: var(--good); }
-.rating-btn[data-v="mid"]:hover, .rating-btn[data-v="mid"].active { border-color: var(--mid); background: rgba(255,149,0,0.08); color: var(--mid); }
-.rating-btn[data-v="bad"]:hover, .rating-btn[data-v="bad"].active { border-color: var(--bad); background: rgba(255,59,48,0.08); color: var(--bad); }
-.tag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag-btn {
-  padding: 6px 12px; border: 1px solid var(--border);
-  border-radius: 14px; font-size: 12px; cursor: pointer;
-  transition: all .15s; background: var(--white);
+
+.eval-body { padding: 12px 16px; flex: 1; }
+
+.eval-block { margin-bottom: 16px; }
+.eval-lbl {
+  font-size: 12px; font-weight: 600; color: var(--gray2);
+  margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: .3px;
 }
-.tag-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-.modal textarea {
-  width: 100%; padding: 10px 12px;
+.req { color: var(--bad); }
+
+/* Pass/Fail buttons */
+.pf-row { display: flex; gap: 8px; }
+.pf-btn {
+  flex: 1; padding: 10px 8px; text-align: center;
   border: 1.5px solid var(--border); border-radius: var(--radius);
-  font-size: 13px; resize: vertical; min-height: 72px;
-  outline: none; font-family: inherit; background: var(--gray3);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all .15s; background: var(--white);
+  user-select: none;
 }
-.modal textarea:focus { border-color: var(--primary); background: var(--white); }
-.btn-primary {
+.pf-btn:hover { border-color: var(--gray2); background: var(--gray3); }
+.pf-btn.pass.active { border-color: var(--good); background: rgba(52,199,89,.1); color: var(--good); }
+.pf-btn.fail.active { border-color: var(--bad); background: rgba(255,59,48,.08); color: var(--bad); }
+
+/* Score row */
+.score-row { display: flex; gap: 6px; }
+.score-btn {
+  flex: 1; padding: 7px 4px; text-align: center;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all .15s; background: var(--white);
+  user-select: none; color: var(--dark);
+}
+.score-btn:hover { border-color: var(--primary); color: var(--primary); }
+.score-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+
+/* Tag grid */
+.itag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.itag {
+  padding: 5px 10px; border: 1px solid var(--border);
+  border-radius: 12px; font-size: 12px; cursor: pointer;
+  transition: all .15s; background: var(--white);
+  user-select: none;
+}
+.itag:hover { border-color: var(--primary); color: var(--primary); }
+.itag.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+
+.other-input {
+  margin-top: 8px; width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; outline: none; font-family: inherit;
+  background: var(--gray3);
+}
+.other-input:focus { border-color: var(--primary); background: var(--white); }
+
+.eval-textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  font-size: 13px; resize: vertical; min-height: 68px;
+  outline: none; font-family: inherit; background: var(--gray3);
+  line-height: 1.5;
+}
+.eval-textarea:focus { border-color: var(--primary); background: var(--white); }
+
+.eval-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.eval-submit {
   width: 100%; padding: 11px;
   background: var(--primary); color: #fff;
   border: none; border-radius: var(--radius);
   font-size: 14px; font-weight: 600; cursor: pointer;
-  transition: opacity .15s; margin-top: 6px;
+  transition: opacity .15s;
 }
-.btn-primary:hover { opacity: .9; }
-.btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+.eval-submit:hover:not(:disabled) { opacity: .88; }
+.eval-submit:disabled { opacity: .35; cursor: not-allowed; }
+
+/* Section divider */
+.eval-divider {
+  height: 1px; background: var(--border);
+  margin: 4px 0 16px;
+}
 </style>
 </head>
 <body>
@@ -397,14 +422,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 
   <!-- ========== CENTER MAIN PANEL ========== -->
   <div class="main-panel">
-    <!-- Empty State -->
     <div class="main-empty" id="mainEmpty">
       <div class="icon">💬</div>
       <div class="title">请从左侧选择一个用户开始测评</div>
       <div class="desc">选择用户后可开始模拟客服对话</div>
     </div>
 
-    <!-- Chat View -->
     <div class="chat-view" id="chatView">
       <div class="chat-topbar">
         <div class="avatar" id="chatAvatar"></div>
@@ -412,7 +435,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
           <div class="t-name" id="chatName"></div>
           <div class="t-meta" id="chatMeta"></div>
         </div>
-        <button class="end-btn" onclick="endChat()">结束对话</button>
+
       </div>
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-inputbar">
@@ -421,7 +444,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
       </div>
     </div>
 
-    <!-- History View -->
     <div class="history-view" id="historyView">
       <div class="history-topbar">
         <button class="back-btn" onclick="hideHistory()">← 返回</button>
@@ -432,45 +454,118 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
     </div>
   </div>
 
-  <!-- ========== RIGHT DETAIL PANEL ========== -->
-  <div class="detail-panel" id="detailPanel">
-    <div class="detail-empty" id="detailEmpty">
-      <div class="icon">👤</div>
-      <div>选择用户查看详情</div>
+  <!-- ========== RIGHT EVAL PANEL ========== -->
+  <div class="eval-panel" id="evalPanel">
+    <!-- Empty: no user selected -->
+    <div class="eval-empty" id="evalEmpty">
+      <div class="icon">📝</div>
+      <div>选择用户后进行评价</div>
     </div>
-    <div class="detail-content" id="detailContent" style="display:none"></div>
-  </div>
-</div>
 
-<!-- ========== MODAL: RATING ========== -->
-<div class="modal-overlay" id="ratingModal">
-  <div class="modal">
-    <h2>对话评价</h2>
-    <div class="section">
-      <div class="section-label">整体评分 <span style="color:var(--bad)">*</span></div>
-      <div class="rating-btns">
-        <div class="rating-btn" data-v="good" onclick="setRating(this)">👍 好</div>
-        <div class="rating-btn" data-v="mid" onclick="setRating(this)">👌 中</div>
-        <div class="rating-btn" data-v="bad" onclick="setRating(this)">👎 差</div>
+    <!-- Eval form -->
+    <div class="eval-wrap" id="evalWrap" style="display:none">
+      <div class="eval-title">本次评价</div>
+
+      <div class="eval-body">
+        <!-- 1. Pass / Fail -->
+        <div class="eval-block">
+          <div class="eval-lbl">是否通过 <span class="req">*</span></div>
+          <div class="pf-row">
+            <div class="pf-btn pass" id="pfPass" onclick="setPassFail('pass')">✅ 通过</div>
+            <div class="pf-btn fail" id="pfFail" onclick="setPassFail('fail')">❌ 不通过</div>
+          </div>
+        </div>
+
+        <!-- 2a. Pass: 3 scores -->
+        <div id="passSection" style="display:none">
+          <div class="eval-divider"></div>
+
+          <div class="eval-block">
+            <div class="eval-lbl">整体体验 <span class="req">*</span></div>
+            <div class="score-row" id="scOv"></div>
+          </div>
+          <div class="eval-block">
+            <div class="eval-lbl">拟人度 <span class="req">*</span></div>
+            <div class="score-row" id="scHu"></div>
+          </div>
+          <div class="eval-block">
+            <div class="eval-lbl">解决效率 <span class="req">*</span></div>
+            <div class="score-row" id="scEf"></div>
+          </div>
+
+          <!-- Issue tags: show when 整体体验 ≤ 3 -->
+          <div id="issueSection" style="display:none">
+            <div class="eval-divider"></div>
+            <div class="eval-block">
+              <div class="eval-lbl">问题标注（可多选）</div>
+              <div class="itag-grid" id="issueGrid"></div>
+              <input class="other-input" id="issueOther" placeholder="其他问题，请输入..." style="display:none">
+            </div>
+          </div>
+        </div>
+
+        <!-- 2b. Fail: reasons -->
+        <div id="failSection" style="display:none">
+          <div class="eval-divider"></div>
+          <div class="eval-block">
+            <div class="eval-lbl">不通过原因（可多选）<span class="req">*</span></div>
+            <div class="itag-grid" id="failGrid"></div>
+            <input class="other-input" id="failOther" placeholder="其他原因，请输入..." style="display:none">
+          </div>
+        </div>
+
+        <!-- 3. Remark -->
+        <div id="remarkBlock" style="display:none">
+          <div class="eval-divider"></div>
+          <div class="eval-block">
+            <div class="eval-lbl">备注</div>
+            <textarea class="eval-textarea" id="evalRemark" placeholder="补充说明..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-footer">
+        <button class="eval-submit" id="evalSubmit" disabled onclick="submitEval()">提交并结束对话</button>
       </div>
     </div>
-    <div class="section">
-      <div class="section-label">问题标注（可多选）</div>
-      <div class="tag-grid" id="tagGrid"></div>
-    </div>
-    <div class="section">
-      <div class="section-label">备注</div>
-      <textarea id="remarkInput" placeholder="补充说明..."></textarea>
-    </div>
-    <button class="btn-primary" onclick="submitRating()">提交评价</button>
   </div>
 </div>
 
 <script>
-// ===== Mock Data =====
+// ===== Data =====
 const COLORS = ['#FF6900','#007AFF','#34C759','#AF52DE','#FF2D55','#5856D6','#FF9500','#00C7BE'];
 const MODELS = ['SU7','SU7 Pro','SU7 Ultra','YU7'];
-const TAGS = ['答非所问','信息错误','态度不好','响应慢','重复回答','无法理解','其他'];
+
+const FAIL_REASONS = [
+  '知识性错误',
+  '未正确解决问题',
+  '答非所问/理解意图有误',
+  '未正确转人工',
+  '透漏内部信息',
+  '透漏思考过程',
+  '泄露隐私',
+  '未正确安抚',
+  '推卸责任',
+  '回复过于冗长',
+  '其他',
+];
+
+const ISSUE_TAGS = [
+  '回复冗长/啰嗦',
+  '回复过于简短',
+  '表述不够清晰',
+  '拟人度偏低',
+  '安抚不到位',
+  '多轮才解决',
+  '结尾引导缺失',
+  '其他',
+];
+
+const SCORE_LABELS = {
+  scOv: { key: 'overall', name: '整体体验' },
+  scHu: { key: 'humanness', name: '拟人度' },
+  scEf: { key: 'efficiency', name: '解决效率' },
+};
 
 const mockUsers = [
   { id:1, name:'张明远', phone:'138****1234', model:'SU7', vin:'LMWSU7A00R1001234', buyDate:'2025-06-15', serviceEnd:'2028-06-15' },
@@ -499,22 +594,27 @@ let selectedUser = null;
 let currentTab = '全部';
 let chatLog = [];
 let replyIndex = 0;
-let currentRating = null;
-let selectedTags = new Set();
 let chatActive = false;
+
+// Eval state
+let evalResult = null;        // 'pass' | 'fail' | null
+let evalScores = { overall: 0, humanness: 0, efficiency: 0 };
+let evalIssueTags = new Set();
+let evalFailReasons = new Set();
 
 // ===== Init =====
 function init() {
   renderTabs();
   renderUsers();
-  renderTagGrid();
+  renderFailGrid();
+  renderIssueGrid();
+  renderScoreRows();
 }
 
 // ===== Tabs =====
 function renderTabs() {
   const tabs = ['全部', ...MODELS];
-  const c = document.getElementById('tabsContainer');
-  c.innerHTML = tabs.map(t =>
+  document.getElementById('tabsContainer').innerHTML = tabs.map(t =>
     `<div class="sidebar-tab${t===currentTab?' active':''}" onclick="switchTab('${t}')">${t}</div>`
   ).join('');
 }
@@ -535,7 +635,7 @@ function renderUsers() {
   const list = getFiltered();
   const el = document.getElementById('userList');
   if (!list.length) {
-    el.innerHTML = '<div class="sidebar-empty"><div class="icon">🔍</div><div>没有匹配的用户</div></div>';
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--gray2);font-size:13px;">没有匹配的用户</div>';
     return;
   }
   el.innerHTML = list.map(u => {
@@ -554,51 +654,17 @@ function renderUsers() {
 function selectUser(id) {
   selectedUser = mockUsers.find(u => u.id === id);
   renderUsers();
-  renderDetail();
-  // Auto-start chat
+  resetEval();
+  showEvalPanel();
   if (!chatActive) startChat();
   else updateChatHeader();
 }
 
-// ===== Right Detail Panel =====
-function renderDetail() {
-  const empty = document.getElementById('detailEmpty');
-  const content = document.getElementById('detailContent');
-  if (!selectedUser) {
-    empty.style.display = 'flex';
-    content.style.display = 'none';
-    return;
-  }
-  empty.style.display = 'none';
-  content.style.display = 'flex';
-  const u = selectedUser;
-  const color = COLORS[u.id % COLORS.length];
-  content.innerHTML = `
-    <div class="detail-avatar" style="background:${color}">${u.name[0]}</div>
-    <div class="detail-name">${u.name}</div>
-    <div class="detail-badge"><span>${u.model}</span></div>
-    <div class="detail-section">
-      <div class="detail-section-title">基本信息</div>
-      <div class="detail-row"><span class="label">手机号</span><span class="value">${u.phone}</span></div>
-      <div class="detail-row"><span class="label">车型</span><span class="value">${u.model}</span></div>
-      <div class="detail-row"><span class="label">VIN</span><span class="value">${u.vin}</span></div>
-    </div>
-    <div class="detail-section">
-      <div class="detail-section-title">服务信息</div>
-      <div class="detail-row"><span class="label">购车时间</span><span class="value">${u.buyDate}</span></div>
-      <div class="detail-row"><span class="label">服务到期</span><span class="value">${u.serviceEnd}</span></div>
-    </div>
-  `;
-}
-
-// ===== Main Panel View Switching =====
+// ===== Main Panel =====
 function showMainView(view) {
-  // view: 'empty' | 'chat' | 'history'
   document.getElementById('mainEmpty').style.display = view === 'empty' ? 'flex' : 'none';
-  const cv = document.getElementById('chatView');
-  const hv = document.getElementById('historyView');
-  cv.classList.toggle('active', view === 'chat');
-  hv.classList.toggle('active', view === 'history');
+  document.getElementById('chatView').classList.toggle('active', view === 'chat');
+  document.getElementById('historyView').classList.toggle('active', view === 'history');
 }
 
 // ===== Chat =====
@@ -608,9 +674,12 @@ function startChat() {
   replyIndex = 0;
   chatActive = true;
   document.getElementById('chatMessages').innerHTML = '';
+  document.getElementById('msgInput').disabled = false;
+  document.getElementById('sendBtn').disabled = false;
   updateChatHeader();
   showMainView('chat');
-  // Auto greeting
+  updateEvalNotice();
+  updateSubmitBtn();
   setTimeout(() => addBotMessage(botReplies[0](selectedUser)), 500);
   replyIndex = 1;
 }
@@ -657,14 +726,13 @@ function addBotMessage(text) {
 function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
-  if (!text) return;
+  if (!text || !chatActive) return;
   addMessage(text, 'user');
   input.value = '';
   input.style.height = 'auto';
   const idx = Math.min(replyIndex, botReplies.length - 1);
-  const reply = botReplies[idx](selectedUser);
   replyIndex++;
-  setTimeout(() => addBotMessage(reply), 300);
+  setTimeout(() => addBotMessage(botReplies[idx](selectedUser)), 300);
 }
 
 function handleKey(e) {
@@ -676,93 +744,249 @@ function autoGrow(el) {
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
-function endChat() { openRatingModal(); }
+function endChat() {
+  chatActive = false;
+  document.getElementById('msgInput').disabled = true;
+  document.getElementById('sendBtn').disabled = true;
+  // Add end message
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.style.cssText = 'text-align:center;font-size:12px;color:var(--gray2);padding:8px 0;';
+  div.textContent = '— 对话已结束，请填写右侧评价 —';
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  updateEvalNotice();
+  updateSubmitBtn();
+}
 
 // ===== History =====
 function showHistory() {
   renderHistory();
   showMainView('history');
 }
-
 function hideHistory() {
-  showMainView(chatActive ? 'chat' : 'empty');
+  showMainView(chatActive || selectedUser ? 'chat' : 'empty');
 }
 
-const RATING_MAP = { good:{label:'好',cls:'good'}, mid:{label:'中',cls:'mid'}, bad:{label:'差',cls:'bad'} };
-
 function renderHistory() {
-  const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
+  const records = JSON.parse(localStorage.getItem('mi_eval_records_v2') || '[]');
   const el = document.getElementById('historyList');
   if (!records.length) {
     el.innerHTML = '<div class="history-empty"><div class="icon">📋</div><div>暂无测评记录</div></div>';
     return;
   }
   el.innerHTML = records.map(r => {
-    const ri = RATING_MAP[r.rating] || {label:'?',cls:''};
     const d = new Date(r.time);
     const ts = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    const isPass = r.result === 'pass';
+    const badge = isPass
+      ? '<span class="history-badge pass">通过</span>'
+      : '<span class="history-badge fail">不通过</span>';
+    let scores = '';
+    if (isPass && r.scores) {
+      scores = `<div class="history-scores">体验 ${r.scores.overall} · 拟人 ${r.scores.humanness} · 效率 ${r.scores.efficiency}</div>`;
+    }
+    const tags = isPass ? (r.issueTags || []) : (r.failReasons || []);
+    const tagsHtml = tags.length
+      ? `<div class="history-tags">${tags.map(t=>`<span class="history-tag">${t}</span>`).join('')}</div>`
+      : '';
+    const remark = r.remark ? `<div style="font-size:12px;color:var(--gray2);margin-top:6px">💬 ${r.remark}</div>` : '';
     return `<div class="history-item">
       <div class="history-top">
         <div><span class="history-name">${r.userName}</span><span class="history-model"> · ${r.model}</span></div>
-        <span class="history-rating ${ri.cls}">${ri.label}</span>
+        ${badge}
       </div>
-      <div class="history-time">${ts}${r.msgCount ? ' · '+r.msgCount+'条消息' : ''}</div>
-      ${r.tags.length ? '<div class="history-tags">'+r.tags.map(t=>`<span class="history-tag">${t}</span>`).join('')+'</div>' : ''}
-      ${r.remark ? '<div style="font-size:12px;color:var(--gray2);margin-top:6px">💬 '+r.remark+'</div>' : ''}
+      <div class="history-time">${ts}${r.msgCount ? ' · ' + r.msgCount + '条消息' : ''}</div>
+      ${scores}${tagsHtml}${remark}
     </div>`;
   }).join('');
 }
 
 function clearHistory() {
   if (!confirm('确定清空所有测评记录？')) return;
-  localStorage.removeItem('mi_eval_records');
+  localStorage.removeItem('mi_eval_records_v2');
   renderHistory();
 }
 
-// ===== Rating Modal =====
-function openRatingModal() {
-  currentRating = null;
-  selectedTags.clear();
-  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('remarkInput').value = '';
-  document.getElementById('ratingModal').classList.add('active');
+// ===== Eval Panel =====
+function showEvalPanel() {
+  document.getElementById('evalEmpty').style.display = 'none';
+  document.getElementById('evalWrap').style.display = 'flex';
 }
 
-function setRating(el) {
-  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  currentRating = el.dataset.v;
+function updateEvalNotice() {}
+
+function resetEval() {
+  evalResult = null;
+  evalScores = { overall: 0, humanness: 0, efficiency: 0 };
+  evalIssueTags.clear();
+  evalFailReasons.clear();
+  // Reset UI
+  document.getElementById('pfPass').classList.remove('active');
+  document.getElementById('pfFail').classList.remove('active');
+  document.getElementById('passSection').style.display = 'none';
+  document.getElementById('failSection').style.display = 'none';
+  document.getElementById('issueSection').style.display = 'none';
+  document.getElementById('remarkBlock').style.display = 'none';
+  document.getElementById('evalRemark').value = '';
+  resetScoreRow('scOv');
+  resetScoreRow('scHu');
+  resetScoreRow('scEf');
+  document.querySelectorAll('.itag').forEach(t => t.classList.remove('active'));
+  document.getElementById('issueOther').style.display = 'none';
+  document.getElementById('issueOther').value = '';
+  document.getElementById('failOther').style.display = 'none';
+  document.getElementById('failOther').value = '';
+  updateSubmitBtn();
 }
 
-function renderTagGrid() {
-  document.getElementById('tagGrid').innerHTML = TAGS.map(t =>
-    `<div class="tag-btn" onclick="toggleTag(this,'${t}')">${t}</div>`
+function setPassFail(val) {
+  evalResult = val;
+  document.getElementById('pfPass').classList.toggle('active', val === 'pass');
+  document.getElementById('pfFail').classList.toggle('active', val === 'fail');
+  document.getElementById('passSection').style.display = val === 'pass' ? 'block' : 'none';
+  document.getElementById('failSection').style.display = val === 'fail' ? 'block' : 'none';
+  document.getElementById('remarkBlock').style.display = 'block';
+  // Reset scores and tags when switching
+  if (val === 'pass') {
+    evalFailReasons.clear();
+    document.querySelectorAll('#failGrid .itag').forEach(t => t.classList.remove('active'));
+  } else {
+    evalScores = { overall: 0, humanness: 0, efficiency: 0 };
+    evalIssueTags.clear();
+    resetScoreRow('scOv');
+    resetScoreRow('scHu');
+    resetScoreRow('scEf');
+    document.getElementById('issueSection').style.display = 'none';
+  }
+  updateSubmitBtn();
+}
+
+// Score rows
+function renderScoreRows() {
+  ['scOv','scHu','scEf'].forEach(id => {
+    document.getElementById(id).innerHTML = [1,2,3,4,5].map(n =>
+      `<div class="score-btn" data-row="${id}" data-val="${n}" onclick="setScore('${id}',${n})">${n}</div>`
+    ).join('');
+  });
+}
+
+function resetScoreRow(id) {
+  document.querySelectorAll(`#${id} .score-btn`).forEach(b => b.classList.remove('active'));
+}
+
+function setScore(rowId, val) {
+  document.querySelectorAll(`#${rowId} .score-btn`).forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.val) === val);
+  });
+  const key = SCORE_LABELS[rowId].key;
+  evalScores[key] = val;
+  // Show issue tags if overall ≤ 3
+  if (rowId === 'scOv') {
+    const show = val > 0 && val <= 3;
+    document.getElementById('issueSection').style.display = show ? 'block' : 'none';
+    if (!show) {
+      evalIssueTags.clear();
+      document.querySelectorAll('#issueGrid .itag').forEach(t => t.classList.remove('active'));
+    }
+  }
+  updateSubmitBtn();
+}
+
+// Tag grids
+function renderIssueGrid() {
+  document.getElementById('issueGrid').innerHTML = ISSUE_TAGS.map(t =>
+    `<div class="itag" data-tag="${t}" onclick="toggleIssueTag(this,'${t}')">${t}</div>`
   ).join('');
 }
 
-function toggleTag(el, tag) {
-  el.classList.toggle('active');
-  selectedTags.has(tag) ? selectedTags.delete(tag) : selectedTags.add(tag);
+function renderFailGrid() {
+  document.getElementById('failGrid').innerHTML = FAIL_REASONS.map(t =>
+    `<div class="itag" data-tag="${t}" onclick="toggleFailTag(this,'${t}')">${t}</div>`
+  ).join('');
 }
 
-function submitRating() {
-  if (!currentRating) { alert('请选择整体评分'); return; }
+function toggleIssueTag(el, tag) {
+  el.classList.toggle('active');
+  if (evalIssueTags.has(tag)) evalIssueTags.delete(tag); else evalIssueTags.add(tag);
+  document.getElementById('issueOther').style.display = evalIssueTags.has('其他') ? 'block' : 'none';
+}
+
+function toggleFailTag(el, tag) {
+  el.classList.toggle('active');
+  if (evalFailReasons.has(tag)) evalFailReasons.delete(tag); else evalFailReasons.add(tag);
+  document.getElementById('failOther').style.display = evalFailReasons.has('其他') ? 'block' : 'none';
+  updateSubmitBtn();
+}
+
+// Submit validation
+function isEvalValid() {
+  if (!evalResult) return false;
+  if (evalResult === 'pass') {
+    return evalScores.overall > 0 && evalScores.humanness > 0 && evalScores.efficiency > 0;
+  }
+  if (evalResult === 'fail') {
+    return evalFailReasons.size > 0;
+  }
+  return false;
+}
+
+function updateSubmitBtn() {
+  const btn = document.getElementById('evalSubmit');
+  btn.disabled = !isEvalValid();
+}
+
+function submitEval() {
+  if (!isEvalValid()) return;
+  // End chat if still active
+  if (chatActive) {
+    chatActive = false;
+    document.getElementById('msgInput').disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+    const el = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.style.cssText = 'text-align:center;font-size:12px;color:var(--gray2);padding:8px 0;';
+    div.textContent = '— 对话已结束 —';
+    el.appendChild(div);
+  }
+
+  // Collect other text
+  let issueTags = [...evalIssueTags];
+  if (issueTags.includes('其他')) {
+    const other = document.getElementById('issueOther').value.trim();
+    issueTags = issueTags.filter(t => t !== '其他');
+    if (other) issueTags.push(`其他: ${other}`);
+  }
+  let failReasons = [...evalFailReasons];
+  if (failReasons.includes('其他')) {
+    const other = document.getElementById('failOther').value.trim();
+    failReasons = failReasons.filter(t => t !== '其他');
+    if (other) failReasons.push(`其他: ${other}`);
+  }
+
   const record = {
     userId: selectedUser.id,
     userName: selectedUser.name,
     model: selectedUser.model,
-    rating: currentRating,
-    tags: [...selectedTags],
-    remark: document.getElementById('remarkInput').value.trim(),
+    result: evalResult,
+    scores: evalResult === 'pass' ? { ...evalScores } : null,
+    issueTags: evalResult === 'pass' ? issueTags : [],
+    failReasons: evalResult === 'fail' ? failReasons : [],
+    remark: document.getElementById('evalRemark').value.trim(),
     time: new Date().toISOString(),
     msgCount: chatLog.length,
   };
-  const records = JSON.parse(localStorage.getItem('mi_eval_records') || '[]');
+
+  const records = JSON.parse(localStorage.getItem('mi_eval_records_v2') || '[]');
   records.unshift(record);
-  localStorage.setItem('mi_eval_records', JSON.stringify(records));
-  document.getElementById('ratingModal').classList.remove('active');
+  localStorage.setItem('mi_eval_records_v2', JSON.stringify(records));
+
+  // Reset and go to history
+  selectedUser = null;
   chatActive = false;
+  renderUsers();
+  document.getElementById('evalWrap').style.display = 'none';
+  document.getElementById('evalEmpty').style.display = 'flex';
   showHistory();
 }
 
