@@ -483,25 +483,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
           <div class="eval-block">
             <div class="eval-lbl">整体体验 <span class="req">*</span></div>
             <div class="score-row" id="scOv"></div>
+            <div class="score-desc" id="descOv"></div>
           </div>
           <div class="eval-block">
             <div class="eval-lbl">拟人度 <span class="req">*</span></div>
             <div class="score-row" id="scHu"></div>
+            <div class="score-desc" id="descHu"></div>
           </div>
           <div class="eval-block">
             <div class="eval-lbl">解决效率 <span class="req">*</span></div>
             <div class="score-row" id="scEf"></div>
+            <div class="score-desc" id="descEf"></div>
           </div>
 
-          <!-- Issue tags: show when 整体体验 ≤ 3 -->
-          <div id="issueSection" style="display:none">
-            <div class="eval-divider"></div>
-            <div class="eval-block">
-              <div class="eval-lbl">问题标注（可多选）</div>
-              <div class="itag-grid" id="issueGrid"></div>
-              <input class="other-input" id="issueOther" placeholder="其他问题，请输入..." style="display:none">
-            </div>
-          </div>
         </div>
 
         <!-- 2b. Fail: reasons -->
@@ -509,8 +503,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
           <div class="eval-divider"></div>
           <div class="eval-block">
             <div class="eval-lbl">不通过原因（可多选）<span class="req">*</span></div>
-            <div class="itag-grid" id="failGrid"></div>
-            <input class="other-input" id="failOther" placeholder="其他原因，请输入..." style="display:none">
+            <div class="fail-list" id="failList"></div>
+            <input class="other-input" id="failOther" placeholder="其他原因，请输入..." style="display:none;margin-top:6px">
           </div>
         </div>
 
@@ -550,16 +544,11 @@ const FAIL_REASONS = [
   '其他',
 ];
 
-const ISSUE_TAGS = [
-  '回复冗长/啰嗦',
-  '回复过于简短',
-  '表述不够清晰',
-  '拟人度偏低',
-  '安抚不到位',
-  '多轮才解决',
-  '结尾引导缺失',
-  '其他',
-];
+const SCORE_DESCS = {
+  scOv: ['体验极差，完全无法接受','体验较差，问题明显','体验一般，有待改进','体验良好，基本满意','体验极佳，超出预期'],
+  scHu: ['完全机械，无人情味','较为生硬，偶尔自然','部分自然，整体偏机械','较为自然，偶有机械感','非常自然，接近真人'],
+  scEf: ['完全未解决，反复兜圈','多轮无效往返','最终解决但过程冗余','高效解决，轮次合理','一轮精准解决'],
+};
 
 const SCORE_LABELS = {
   scOv: { key: 'overall', name: '整体体验' },
@@ -607,7 +596,6 @@ function init() {
   renderTabs();
   renderUsers();
   renderFailGrid();
-  renderIssueGrid();
   renderScoreRows();
 }
 
@@ -819,22 +807,17 @@ function updateEvalNotice() {}
 function resetEval() {
   evalResult = null;
   evalScores = { overall: 0, humanness: 0, efficiency: 0 };
-  evalIssueTags.clear();
   evalFailReasons.clear();
-  // Reset UI
   document.getElementById('pfPass').classList.remove('active');
   document.getElementById('pfFail').classList.remove('active');
   document.getElementById('passSection').style.display = 'none';
   document.getElementById('failSection').style.display = 'none';
-  document.getElementById('issueSection').style.display = 'none';
   document.getElementById('remarkBlock').style.display = 'none';
   document.getElementById('evalRemark').value = '';
-  resetScoreRow('scOv');
-  resetScoreRow('scHu');
-  resetScoreRow('scEf');
-  document.querySelectorAll('.itag').forEach(t => t.classList.remove('active'));
-  document.getElementById('issueOther').style.display = 'none';
-  document.getElementById('issueOther').value = '';
+  resetScoreRow('scOv'); updateScoreDesc('scOv', 0);
+  resetScoreRow('scHu'); updateScoreDesc('scHu', 0);
+  resetScoreRow('scEf'); updateScoreDesc('scEf', 0);
+  document.querySelectorAll('#failList .fail-item').forEach(t => t.classList.remove('active'));
   document.getElementById('failOther').style.display = 'none';
   document.getElementById('failOther').value = '';
   updateSubmitBtn();
@@ -847,17 +830,14 @@ function setPassFail(val) {
   document.getElementById('passSection').style.display = val === 'pass' ? 'block' : 'none';
   document.getElementById('failSection').style.display = val === 'fail' ? 'block' : 'none';
   document.getElementById('remarkBlock').style.display = 'block';
-  // Reset scores and tags when switching
   if (val === 'pass') {
     evalFailReasons.clear();
-    document.querySelectorAll('#failGrid .itag').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#failList .fail-item').forEach(t => t.classList.remove('active'));
   } else {
     evalScores = { overall: 0, humanness: 0, efficiency: 0 };
-    evalIssueTags.clear();
-    resetScoreRow('scOv');
-    resetScoreRow('scHu');
-    resetScoreRow('scEf');
-    document.getElementById('issueSection').style.display = 'none';
+    resetScoreRow('scOv'); updateScoreDesc('scOv', 0);
+    resetScoreRow('scHu'); updateScoreDesc('scHu', 0);
+    resetScoreRow('scEf'); updateScoreDesc('scEf', 0);
   }
   updateSubmitBtn();
 }
@@ -875,41 +855,33 @@ function resetScoreRow(id) {
   document.querySelectorAll(`#${id} .score-btn`).forEach(b => b.classList.remove('active'));
 }
 
+function updateScoreDesc(rowId, val) {
+  const suffix = { scOv:'Ov', scHu:'Hu', scEf:'Ef' }[rowId];
+  const el = document.getElementById('desc' + suffix);
+  if (!el) return;
+  el.textContent = val > 0 ? val + '分：' + SCORE_DESCS[rowId][val - 1] : '';
+}
+
 function setScore(rowId, val) {
   document.querySelectorAll(`#${rowId} .score-btn`).forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.val) === val);
   });
-  const key = SCORE_LABELS[rowId].key;
-  evalScores[key] = val;
-  // Show issue tags if overall ≤ 3
-  if (rowId === 'scOv') {
-    const show = val > 0 && val <= 3;
-    document.getElementById('issueSection').style.display = show ? 'block' : 'none';
-    if (!show) {
-      evalIssueTags.clear();
-      document.querySelectorAll('#issueGrid .itag').forEach(t => t.classList.remove('active'));
-    }
-  }
+  evalScores[SCORE_LABELS[rowId].key] = val;
+  updateScoreDesc(rowId, val);
   updateSubmitBtn();
 }
 
-// Tag grids
-function renderIssueGrid() {
-  document.getElementById('issueGrid').innerHTML = ISSUE_TAGS.map(t =>
-    `<div class="itag" data-tag="${t}" onclick="toggleIssueTag(this,'${t}')">${t}</div>`
-  ).join('');
-}
-
+// Fail reason list
 function renderFailGrid() {
-  document.getElementById('failGrid').innerHTML = FAIL_REASONS.map(t =>
-    `<div class="itag" data-tag="${t}" onclick="toggleFailTag(this,'${t}')">${t}</div>`
+  document.getElementById('failList').innerHTML = FAIL_REASONS.map(r =>
+    `<div class="fail-item" data-tag="${r.name}" onclick="toggleFailTag(this,'${r.name}')">
+      <div class="fi-check">✓</div>
+      <div class="fi-text">
+        <div class="fi-name">${r.name}</div>
+        <div class="fi-desc">${r.desc}</div>
+      </div>
+    </div>`
   ).join('');
-}
-
-function toggleIssueTag(el, tag) {
-  el.classList.toggle('active');
-  if (evalIssueTags.has(tag)) evalIssueTags.delete(tag); else evalIssueTags.add(tag);
-  document.getElementById('issueOther').style.display = evalIssueTags.has('其他') ? 'block' : 'none';
 }
 
 function toggleFailTag(el, tag) {
@@ -950,13 +922,8 @@ function submitEval() {
     el.appendChild(div);
   }
 
-  // Collect other text
-  let issueTags = [...evalIssueTags];
-  if (issueTags.includes('其他')) {
-    const other = document.getElementById('issueOther').value.trim();
-    issueTags = issueTags.filter(t => t !== '其他');
-    if (other) issueTags.push(`其他: ${other}`);
-  }
+  // Collect fail reasons
+  let issueTags = [];
   let failReasons = [...evalFailReasons];
   if (failReasons.includes('其他')) {
     const other = document.getElementById('failOther').value.trim();
