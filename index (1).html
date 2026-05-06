@@ -348,16 +348,34 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC'
 .score-btn:hover { border-color: var(--primary); color: var(--primary); }
 .score-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
 
-/* Tag grid */
-.itag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.itag {
-  padding: 5px 10px; border: 1px solid var(--border);
-  border-radius: 12px; font-size: 12px; cursor: pointer;
+/* Score description */
+.score-desc {
+  font-size: 12px; color: var(--primary);
+  font-weight: 500; margin-top: 5px; min-height: 16px;
+}
+
+/* Fail reason list */
+.fail-list { display: flex; flex-direction: column; gap: 6px; }
+.fail-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 10px; border: 1.5px solid var(--border);
+  border-radius: var(--radius); cursor: pointer;
   transition: all .15s; background: var(--white);
   user-select: none;
 }
-.itag:hover { border-color: var(--primary); color: var(--primary); }
-.itag.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+.fail-item:hover { border-color: var(--primary); background: var(--primary-light); }
+.fail-item.active { border-color: var(--primary); background: var(--primary-light); }
+.fail-item .fi-check {
+  width: 16px; height: 16px; border-radius: 3px;
+  border: 1.5px solid var(--border); flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: transparent;
+  transition: all .15s;
+}
+.fail-item.active .fi-check { background: var(--primary); border-color: var(--primary); color: #fff; }
+.fail-item .fi-text { flex: 1; min-width: 0; }
+.fail-item .fi-name { font-size: 13px; font-weight: 500; color: var(--dark); }
+.fail-item .fi-desc { font-size: 11px; color: var(--gray2); margin-top: 2px; line-height: 1.5; }
 
 .other-input {
   margin-top: 8px; width: 100%;
@@ -531,23 +549,23 @@ const COLORS = ['#FF6900','#007AFF','#34C759','#AF52DE','#FF2D55','#5856D6','#FF
 const MODELS = ['SU7','SU7 Pro','SU7 Ultra','YU7'];
 
 const FAIL_REASONS = [
-  '知识性错误',
-  '未正确解决问题',
-  '答非所问/理解意图有误',
-  '未正确转人工',
-  '透漏内部信息',
-  '透漏思考过程',
-  '泄露隐私',
-  '未正确安抚',
-  '推卸责任',
-  '回复过于冗长',
-  '其他',
+  { name: '知识性错误',     desc: '回复内容有事实错误（政策/参数/流程等）' },
+  { name: '未正确解决问题',   desc: '未帮用户完成目标（建单、查询、解释等）' },
+  { name: '答非所问',         desc: '未理解用户真实意图，回答偏题' },
+  { name: '未正确转人工',     desc: '应转人工时未转，或转接流程有误' },
+  { name: '透漏内部信息',     desc: '提及知识库、工单系统等内部名词' },
+  { name: '透漏思考过程',     desc: '将推理步骤或内部逻辑暴露给用户' },
+  { name: '泄露隐私',         desc: '不当透露用户或他人隐私数据' },
+  { name: '未正确安抚',       desc: '用户情绪激动时未有效疏导和共情' },
+  { name: '推卸责任',         desc: '建议用户自行联系人工，而非直接帮用户转接' },
+  { name: '回复过于冗长',     desc: '回复内容过长，信息密度低' },
+  { name: '其他',             desc: '其他问题，请在下框输入说明' },
 ];
 
 const SCORE_DESCS = {
   scOv: ['体验极差，完全无法接受','体验较差，问题明显','体验一般，有待改进','体验良好，基本满意','体验极佳，超出预期'],
   scHu: ['完全机械，无人情味','较为生硬，偶尔自然','部分自然，整体偏机械','较为自然，偶有机械感','非常自然，接近真人'],
-  scEf: ['完全未解决，反复兜圈','多轮无效往返','最终解决但过程冗余','高效解决，轮次合理','一轮精准解决'],
+  scEf: ['完全未解决，反复兜圈','多轮无效往返，进展滑满','最终解决但过程冗余','解决较快，轮次合理','快速精准，小于预期轮次'],
 };
 
 const SCORE_LABELS = {
